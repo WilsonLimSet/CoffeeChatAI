@@ -20,12 +20,12 @@ export async function POST(req: Request) {
     messages: [
       {
         role: 'user',
-        content: `You are a talk show host and you're about to interview someone. Based on the biography of this person:  ${bio}$ generate 2 ${vibe} potential interesting questions that a wide range of people might find interesting and clearly labeled "1." and "2."${
+        content: `You are a talk show host and you're about to interview someone. Based on the biography of this person: ${bio}$ generate 2 ${vibe} potential interesting questions that are specific to them and clearly labeled "1." and "2."${
           vibe === 'Funny'
             ? "Make sure there is a joke in there and it's a little ridiculous."
             : null
         }
-          Make sure each generated question is less than 200 characters, and base them on this context of the person: ${bio}${
+          Make sure each generated question is less than 200 characters{
           bio.slice(-1) === '.' ? '' : '.'
         }`,
       },
