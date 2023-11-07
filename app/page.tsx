@@ -14,7 +14,7 @@ export default function Page() {
   const [coffeeChatsAided, setCoffeeChatsAided] = useState(0);
 
   useEffect(() => {
-    fetch('/counter')
+    fetch('/counter-coffee')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -22,18 +22,18 @@ export default function Page() {
         return response.json();
       })
       .then((data) => {
-        console.log('Data fetched:', data); // Add this line to log the data
-        if (data && typeof data.CoffeeChatAidCount === 'string') {
-          setCoffeeChatsAided(parseInt(data.CoffeeChatAidCount, 10));
+        console.log('Data fetched:', data); // Log the fetched data
+        // Directly use the number from the data if it's a number
+        if (typeof data === 'number') {
+          setCoffeeChatsAided(data);
         } else {
-          console.error('Invalid data structure:', data); // Log if the structure is not as expected
+          console.error('Expected a number, but received:', data); // Log if data is not a number
         }
       })
       .catch((error) => {
         console.error('Error fetching coffee chats aided count:', error);
       });
   }, []);
-  
   
   
 
@@ -54,9 +54,29 @@ export default function Page() {
       },
     });
 
-  const onSubmit = (e: any) => {
+  const onSubmit = async (e: any) => {
+    e.preventDefault();
     setBio(input);
     handleSubmit(e);
+    try {
+      // Call your API endpoint to increment the counter
+      const response = await fetch('/api/incrementCounter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to increment counter');
+      }
+  
+      const data = await response.json();
+      setCoffeeChatsAided(data.CoffeeChatAidCount);
+  
+    } catch (error) {
+      console.error('Error incrementing counter:', error);
+    }
   };
 
   const lastMessage = messages[messages.length - 1];
