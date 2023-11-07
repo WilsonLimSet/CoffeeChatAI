@@ -14,7 +14,7 @@ export const runtime = 'edge';
 
 export async function POST(req: Request) {
   const { vibe, bio } = await req.json();
-  await kv.incr('coffeecounter', 1);
+  await kv.incr('coffeecounter');
 
   // Ask OpenAI for a streaming completion given the prompt
   const response = await openai.createChatCompletion({
