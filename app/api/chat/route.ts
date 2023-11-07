@@ -14,7 +14,11 @@ export const runtime = 'edge';
 
 export async function POST(req: Request) {
   const { vibe, bio } = await req.json();
+  const getme = await kv.get('coffeecounter');
+  console.log('We got:',getme); // Log the fetched data
   await kv.incr('coffeecounter');
+  const user = await kv.get('coffeecounter');
+  console.log('Incremented to :', user); // Log the fetched data
 
   // Ask OpenAI for a streaming completion given the prompt
   const response = await openai.createChatCompletion({
