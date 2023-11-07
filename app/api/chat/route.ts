@@ -17,6 +17,7 @@ export async function GET() {
     value: CoffeeChatAidCountValue1,
   });
 }
+
 export async function POST(req: Request) {
   const { vibe, bio } = await req.json();
 

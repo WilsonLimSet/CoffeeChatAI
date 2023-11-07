@@ -9,20 +9,25 @@ import Github from '../components/GitHub';
 import { useChat } from 'ai/react';
 import { getAll } from '@vercel/edge-config';
 
-
 export default function Page() {
   const [bio, setBio] = useState('');
   const [vibe, setVibe] = useState<VibeType>('Professional');
   const bioRef = useRef<null | HTMLDivElement>(null);
   const [coffeeChatsAided, setCoffeeChatsAided] = useState(0);
 
-useEffect(() => {
-  (async () => {
-    const response = await get('CoffeeChatAidCount');
-    const coffeeChatsAidedValue = parseInt(response);
-    setCoffeeChatsAided(coffeeChatsAidedValue);
-  })();
-}, []);
+  useEffect(() => {
+    fetch('/api/getCoffeeChatAidCount')
+      .then((res) => res.json())
+      .then((data) => {
+        const coffeeChatsAidedValue = parseInt(data.value, 10);
+        setCoffeeChatsAided(coffeeChatsAidedValue);
+      })
+      .catch((error) => {
+        console.error('Error fetching coffee chat aid count:', error);
+      });
+  }, []);
+  
+  
 
   const scrollToBios = () => {
     if (bioRef.current !== null) {
