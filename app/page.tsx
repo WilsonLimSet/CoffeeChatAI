@@ -15,7 +15,7 @@ export default function Page() {
 
   useEffect(() => {
     // Fetch the count when the component mounts
-    fetch('/welcome')
+    fetch('/counter')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
