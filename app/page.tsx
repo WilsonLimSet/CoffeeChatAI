@@ -14,7 +14,6 @@ export default function Page() {
   const [coffeeChatsAided, setCoffeeChatsAided] = useState(0);
 
   useEffect(() => {
-    // Fetch the count when the component mounts
     fetch('/counter')
       .then((response) => {
         if (!response.ok) {
@@ -23,15 +22,18 @@ export default function Page() {
         return response.json();
       })
       .then((data) => {
-        // Access the CoffeeChatAidCount property from the data
+        console.log('Data fetched:', data); // Add this line to log the data
         if (data && typeof data.CoffeeChatAidCount === 'string') {
           setCoffeeChatsAided(parseInt(data.CoffeeChatAidCount, 10));
+        } else {
+          console.error('Invalid data structure:', data); // Log if the structure is not as expected
         }
       })
       .catch((error) => {
         console.error('Error fetching coffee chats aided count:', error);
       });
-  }, []); 
+  }, []);
+  
   
   
 
