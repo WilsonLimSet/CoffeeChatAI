@@ -1,8 +1,6 @@
-# [twitterbio.io](https://www.twitterbio.io/)
+# [coffeechatai](https://www.coffeechatai.com/)
 
-This project generates Twitter bios for you using AI.
-
-[![Twitter Bio Generator](./public/screenshot.png)](https://www.twitterbio.io)
+This project generates questions to ask on a Coffee Chat for you using AI.
 
 ## How it works
 
