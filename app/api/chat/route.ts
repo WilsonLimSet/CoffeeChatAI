@@ -1,6 +1,7 @@
 import { Configuration, OpenAIApi } from 'openai-edge';
 import { OpenAIStream, StreamingTextResponse } from 'ai';
-
+import { NextResponse } from 'next/server';
+import { get } from '@vercel/edge-config';
 // Create an OpenAI API client (that's edge friendly!)
 const config = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -9,7 +10,13 @@ const openai = new OpenAIApi(config);
 
 // Set the runtime to edge for best performance
 export const runtime = 'edge';
-
+export async function GET() {
+  const CoffeeChatAidCountValue1 = await get('CoffeeChatAidCount');
+  return NextResponse.json({
+    label: `Value of "example_key_1" in my Edge Config.`,
+    value: CoffeeChatAidCountValue1,
+  });
+}
 export async function POST(req: Request) {
   const { vibe, bio } = await req.json();
 

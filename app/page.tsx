@@ -7,6 +7,8 @@ import DropDown, { VibeType } from '../components/DropDown';
 import Footer from '../components/Footer';
 import Github from '../components/GitHub';
 import { useChat } from 'ai/react';
+import { getAll } from '@vercel/edge-config';
+
 
 export default function Page() {
   const [bio, setBio] = useState('');
