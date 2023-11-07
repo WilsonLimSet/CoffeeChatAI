@@ -4,15 +4,15 @@ import { get } from '@vercel/edge-config';
 export default async function getCoffeeChatAidCount(req: NextApiRequest, res: NextApiResponse) {
   try {
     const CoffeeChatAidCountValue = await get('CoffeeChatAidCount');
-    // Check if the value is undefined before using it
-    if (CoffeeChatAidCountValue === undefined) {
-      // Handle the undefined case, perhaps by returning a default value or an error
-      res.status(404).json({ error: 'CoffeeChatAidCount not found' });
-      return;
+    
+    // Check if the value is a string and not undefined before using it
+    if (typeof CoffeeChatAidCountValue === 'string') {
+      const coffeeChatsAidedValue = parseInt(CoffeeChatAidCountValue, 10);
+      res.status(200).json({ value: coffeeChatsAidedValue });
+    } else {
+      // If the value is not a string or is undefined, handle the case appropriately
+      res.status(500).json({ error: 'Invalid CoffeeChatAidCount value' });
     }
-    // Now we know CoffeeChatAidCountValue is not undefined, we can safely use it
-    const coffeeChatsAidedValue = parseInt(CoffeeChatAidCountValue, 10);
-    res.status(200).json({ value: coffeeChatsAidedValue });
   } catch (error) {
     console.error('Failed to fetch CoffeeChatAidCount:', error);
     res.status(500).json({ error: 'Failed to fetch CoffeeChatAidCount' });
