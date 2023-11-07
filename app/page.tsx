@@ -7,6 +7,7 @@ import DropDown, { VibeType } from '../components/DropDown';
 import Footer from '../components/Footer';
 import { useChat } from 'ai/react';
 
+export const fetchCache = 'force-no-store';
 export default function Page() {
   const [bio, setBio] = useState('');
   const [vibe, setVibe] = useState<VibeType>('Professional');
@@ -66,7 +67,7 @@ export default function Page() {
 
   return (
     <div className="flex max-w-5xl mx-auto flex-col items-center justify-center py-2 min-h-screen">
-      <main className="flex flex-1 w-full flex-col items-center justify-center text-center px-4 mt-12 sm:mt-20">
+      <main className="flex flex-1 w-full flex-col items-center justify-center text-center px-4 mt-4 sm:mt-4">
         <h1 className="sm:text-6xl text-4xl max-w-[708px] font-bold text-slate-900">
           Generate questions for your Coffee Chats
         </h1>
