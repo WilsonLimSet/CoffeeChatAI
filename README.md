@@ -1,7 +1,9 @@
 # [Coffee Chat AI](https://www.coffeechatai.com/)
 
 This project generates questions to ask on a Coffee Chat for you using AI.
-[!(./public/coffeechatscreenshot.png)]
+
+[![Coffee Chat Generator](./public/coffeechatscreenshot.png)](https://www.coffeechatai.com/)
+
 ## How it works
 Template taken from - https://www.twitterbio.io/
 
