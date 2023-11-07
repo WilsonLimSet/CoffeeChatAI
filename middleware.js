@@ -4,6 +4,7 @@ import { get } from '@vercel/edge-config';
 export const config = { matcher: '/counter' };
  
 export async function middleware() {
-  const greeting = await get('CoffeeChatAidCount');
-  return NextResponse.json(greeting);
+    const count = await get('CoffeeChatAidCount');
+    // Ensure we're returning an object with the CoffeeChatAidCount property
+    return NextResponse.json({ CoffeeChatAidCount: count });
 }
