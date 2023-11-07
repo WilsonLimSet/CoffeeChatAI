@@ -14,6 +14,15 @@ export default function Page() {
   const [bio, setBio] = useState('');
   const [vibe, setVibe] = useState<VibeType>('Professional');
   const bioRef = useRef<null | HTMLDivElement>(null);
+  const [coffeeChatsAided, setCoffeeChatsAided] = useState(0);
+
+useEffect(() => {
+  (async () => {
+    const response = await get('CoffeeChatAidCount');
+    const coffeeChatsAidedValue = parseInt(response);
+    setCoffeeChatsAided(coffeeChatsAidedValue);
+  })();
+}, []);
 
   const scrollToBios = () => {
     if (bioRef.current !== null) {
@@ -46,7 +55,7 @@ export default function Page() {
         <h1 className="sm:text-6xl text-4xl max-w-[708px] font-bold text-slate-900">
           Generate questions for your Coffee Chats
         </h1>
-        <p className="text-slate-500 mt-5">5 coffee chats aided so far.</p>
+        <p className="text-slate-500 mt-5">{coffeeChatsAided} coffee chats aided so far.</p>
         <form className="max-w-xl w-full" onSubmit={onSubmit}>
           <div className="flex mt-10 items-center space-x-3">
             <Image
