@@ -58,25 +58,7 @@ export default function Page() {
     e.preventDefault();
     setBio(input);
     handleSubmit(e);
-    try {
-      // Call your API endpoint to increment the counter
-      const response = await fetch('/api/incrementCounter', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error('Failed to increment counter');
-      }
-  
-      const data = await response.json();
-      setCoffeeChatsAided(data.CoffeeChatAidCount);
-  
-    } catch (error) {
-      console.error('Error incrementing counter:', error);
-    }
+    
   };
 
   const lastMessage = messages[messages.length - 1];
