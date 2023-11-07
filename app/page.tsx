@@ -5,9 +5,7 @@ import { useRef, useState, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import DropDown, { VibeType } from '../components/DropDown';
 import Footer from '../components/Footer';
-import Github from '../components/GitHub';
 import { useChat } from 'ai/react';
-import { getAll } from '@vercel/edge-config';
 
 export default function Page() {
   const [bio, setBio] = useState('');
@@ -16,16 +14,24 @@ export default function Page() {
   const [coffeeChatsAided, setCoffeeChatsAided] = useState(0);
 
   useEffect(() => {
-    fetch('/api/getCoffeeChatAidCount')
-      .then((res) => res.json())
+    // Fetch the count when the component mounts
+    fetch('/welcome')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
       .then((data) => {
-        const coffeeChatsAidedValue = parseInt(data.value, 10);
-        setCoffeeChatsAided(coffeeChatsAidedValue);
+        // Access the CoffeeChatAidCount property from the data
+        if (data && typeof data.CoffeeChatAidCount === 'string') {
+          setCoffeeChatsAided(parseInt(data.CoffeeChatAidCount, 10));
+        }
       })
       .catch((error) => {
-        console.error('Error fetching coffee chat aid count:', error);
+        console.error('Error fetching coffee chats aided count:', error);
       });
-  }, []);
+  }, []); 
   
   
 
