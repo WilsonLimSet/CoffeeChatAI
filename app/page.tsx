@@ -56,6 +56,7 @@ export default function Page() {
 
     const onSubmit = async (e:any) => {
       e.preventDefault();
+      setBio(input);
       handleSubmit(e);
       const updatedCounter = await fetchUpdatedCounter();
       setCoffeeChatsAided(updatedCounter);
