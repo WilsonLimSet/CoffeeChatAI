@@ -14,31 +14,6 @@ export default function Page() {
   const bioRef = useRef<null | HTMLDivElement>(null);
   const [coffeeChatsAided, setCoffeeChatsAided] = useState(0);
 
-  useEffect(() => {
-    fetch('/counter-coffee', {
-      method: 'GET',
-      headers: {
-        'Cache-Control': 'no-cache'
-      }
-    })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log('Data fetched:', data);
-      if (typeof data === 'number') {
-        setCoffeeChatsAided(data);
-      } else {
-        console.error('Expected a number, but received:', data);
-      }
-    })
-    .catch((error) => {
-      console.error('Error fetching coffee chats aided count:', error);
-    });
-  }, []);
   
   
 
@@ -59,26 +34,46 @@ export default function Page() {
       },
     });
 
-  const onSubmit = async (e: any) => {
-    e.preventDefault();
-    setBio(input);
-    handleSubmit(e);
-    fetch('/counter-coffee', {
-      headers: {
-        'Cache-Control': 'no-cache'
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (typeof data === 'number') {
-        setCoffeeChatsAided(data);
-      }
-    })
-    .catch(error => {
-      console.error('Error fetching updated counter:', error);
-    });
-  };
+    useEffect(() => {
+      // Function to fetch the updated counter
+      const fetchUpdatedCounter = async () => {
+        const response = await fetch('/counter-coffee', {
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+        });
+        const data = await response.json();
+        if (typeof data === 'number') {
+          setCoffeeChatsAided(data);
+        } else {
+          console.error('Expected a number but received:', data);
+        }
+      };
     
+      if (!isLoading) {
+        // When isLoading is false, call the function to fetch the updated counter
+        fetchUpdatedCounter();
+      }
+      // This effect should run every time isLoading changes.
+    }, [isLoading]);
+    
+
+    const onSubmit = async (e) => {
+      e.preventDefault();
+      handleSubmit(e);
+      const updatedCounter = await fetchUpdatedCounter();
+      setCoffeeChatsAided(updatedCounter);
+    };
+    
+    async function fetchUpdatedCounter() {
+      const response = await fetch('/counter-coffee', {
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      });
+      const data = await response.json();
+      return data; // Make sure this is the updated counter value.
+    }
 
 
   const lastMessage = messages[messages.length - 1];
