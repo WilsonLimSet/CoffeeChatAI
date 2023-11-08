@@ -58,7 +58,7 @@ export default function Page() {
     }, [isLoading]);
     
 
-    const onSubmit = async (e) => {
+    const onSubmit = async (e:any) => {
       e.preventDefault();
       handleSubmit(e);
       const updatedCounter = await fetchUpdatedCounter();
