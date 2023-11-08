@@ -5,7 +5,7 @@ import { kv } from '@vercel/kv';
 
 // Create an OpenAI API client (that's edge friendly!)
 const config = new Configuration({
-  apiKey: process.env.REACT_OPENAI_API_KEY,
+  apiKey: process.env.REACT_APP_OPENAI_API_KEY,
 });
 console.log('key:', config.apiKey);
 const openai = new OpenAIApi(config);
