@@ -23,14 +23,14 @@ export async function POST(req: Request) {
     messages: [
       {
         role: 'user',
-        content: `You are a talk show host and you're about to interview someone. Based on the biography of this person: ${bio}$ generate 2 ${vibe} potential interesting questions that are specific to them${
+        content: `I am a podcast host preparing to interview a person with the following biography: "${bio}" 
+        Based on this, generate two ${vibe.toLowerCase()} questions that directly relate to the biography provided. ${
           vibe === 'Funny'
-            ? "Make sure there is a joke in there and it's a little ridiculous."
-            : null
-        }
-          Make sure each generated question is less than 200 characters{
-          bio.slice(-1) === '.' ? '' : '.'
-        }`,
+            ? 'The questions should contain humor and be slightly ridiculous.'
+            : 'The questions should be thoughtful and engaging.'
+        } Ensure each question is concise and under 250 characters.
+        If you can't come up with anything say you need more a more specific bio, do not make up a person.
+        `,
       },
     ],
   });
