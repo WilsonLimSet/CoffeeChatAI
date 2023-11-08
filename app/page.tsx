@@ -40,6 +40,7 @@ export default function Page() {
     });
   }, []);
   
+  
 
   const scrollToBios = () => {
     if (bioRef.current !== null) {
@@ -62,15 +63,6 @@ export default function Page() {
     e.preventDefault();
     setBio(input);
     handleSubmit(e);
-
-    await fetch('/api/incrementCounter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-  
-    // After the POST request, re-fetch the updated counter value
     fetch('/counter-coffee', {
       headers: {
         'Cache-Control': 'no-cache'
