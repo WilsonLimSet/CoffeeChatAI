@@ -62,8 +62,32 @@ export default function Page() {
     e.preventDefault();
     setBio(input);
     handleSubmit(e);
-    
+
+    await fetch('/api/incrementCounter', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  
+    // After the POST request, re-fetch the updated counter value
+    fetch('/counter-coffee', {
+      headers: {
+        'Cache-Control': 'no-cache'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (typeof data === 'number') {
+        setCoffeeChatsAided(data);
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching updated counter:', error);
+    });
   };
+    
+
 
   const lastMessage = messages[messages.length - 1];
   const generatedBios = lastMessage?.role === "assistant" ? lastMessage.content : null;
