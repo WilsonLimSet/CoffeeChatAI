@@ -1,13 +1,19 @@
 import { kv } from '@vercel/kv';
 import { NextResponse } from 'next/server';
- 
+
 export async function GET() {
-  const user = await kv.get('coffeecounter');
-  // Create a response with the counter value
-  const response = NextResponse.json(user);
+  const coffeeChatsAided = await kv.get('coffeecounter');
+  console.log('blah:', coffeeChatsAided);
 
-  // Set cache-control headers to prevent caching
-  response.headers.set('Cache-Control', 'no-store, max-age=0');
+  const res = new NextResponse(JSON.stringify(coffeeChatsAided), {
+    status: 200, // HTTP status code
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      Pragma: 'no-cache',
+      Expires: '0',
+    },
+  });
 
-  return response;
+  return res;
 }
