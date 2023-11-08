@@ -72,7 +72,7 @@ export default function Page() {
         }
       });
       const data = await response.json();
-      return data; // Make sure this is the updated counter value.
+      return data; // Make sure this is the updated counter value..
     }
 
 
