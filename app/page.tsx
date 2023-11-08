@@ -15,27 +15,30 @@ export default function Page() {
   const [coffeeChatsAided, setCoffeeChatsAided] = useState(0);
 
   useEffect(() => {
-    fetch('/counter-coffee')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log('Data fetched:', data); // Log the fetched data
-        // Directly use the number from the data if it's a number
-        if (typeof data === 'number') {
-          setCoffeeChatsAided(data);
-        } else {
-          console.error('Expected a number, but received:', data); // Log if data is not a number
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching coffee chats aided count:', error);
-      });
+    fetch('/counter-coffee', {
+      method: 'GET',
+      headers: {
+        'Cache-Control': 'no-cache'
+      }
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log('Data fetched:', data);
+      if (typeof data === 'number') {
+        setCoffeeChatsAided(data);
+      } else {
+        console.error('Expected a number, but received:', data);
+      }
+    })
+    .catch((error) => {
+      console.error('Error fetching coffee chats aided count:', error);
+    });
   }, []);
-  
   
 
   const scrollToBios = () => {
