@@ -1,5 +1,4 @@
 'use client';
-
 import Image from 'next/image';
 import { useRef, useState, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
@@ -7,35 +6,12 @@ import DropDown, { VibeType } from '../components/DropDown';
 import Footer from '../components/Footer';
 import { useChat } from 'ai/react';
 
+export const fetchCache = 'force-no-store';
 export default function Page() {
   const [bio, setBio] = useState('');
   const [vibe, setVibe] = useState<VibeType>('Professional');
   const bioRef = useRef<null | HTMLDivElement>(null);
   const [coffeeChatsAided, setCoffeeChatsAided] = useState(0);
-
-  useEffect(() => {
-    fetch('/api/counter-coffee')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log('Data fetched:', data); // Log the fetched data
-        // Directly use the number from the data if it's a number
-        if (typeof data === 'number') {
-          setCoffeeChatsAided(data);
-        } else {
-          console.error('Expected a number, but received:', data); // Log if data is not a number
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching coffee chats aided count:', error);
-      });
-  }, []);
-  
-  
 
   const scrollToBios = () => {
     if (bioRef.current !== null) {
@@ -54,19 +30,56 @@ export default function Page() {
       },
     });
 
-  const onSubmit = async (e: any) => {
-    e.preventDefault();
-    setBio(input);
-    handleSubmit(e);
+    useEffect(() => {
+      // Function to fetch the updated counter
+      const fetchUpdatedCounter = async () => {
+        const response = await fetch('/api/counter-coffee', {
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+        });
+        const data = await response.json();
+        if (typeof data === 'number') {
+          setCoffeeChatsAided(data);
+        } else {
+          console.error('Expected a number but received:', data);
+        }
+      };
     
-  };
+      if (!isLoading) {
+        // When isLoading is false, call the function to fetch the updated counter
+        fetchUpdatedCounter();
+      }
+      // This effect should run every time isLoading changes.
+    }, [isLoading]);
+    
+
+    const onSubmit = async (e:any) => {
+      e.preventDefault();
+      setBio(input);
+      handleSubmit(e);
+     
+      const updatedCounter = await fetchUpdatedCounter();
+      setCoffeeChatsAided(updatedCounter);
+    };
+    
+    async function fetchUpdatedCounter() {
+      const response = await fetch('/counter-coffee', {
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      });
+      const data = await response.json();
+      return data; // Make sure this is the updated counter value..
+    }
+
 
   const lastMessage = messages[messages.length - 1];
   const generatedBios = lastMessage?.role === "assistant" ? lastMessage.content : null;
 
   return (
     <div className="flex max-w-5xl mx-auto flex-col items-center justify-center py-2 min-h-screen">
-      <main className="flex flex-1 w-full flex-col items-center justify-center text-center px-4 mt-4 sm:mt-20">
+      <main className="flex flex-1 w-full flex-col items-center justify-center text-center px-4 mt-4 sm:mt-4">
         <h1 className="sm:text-6xl text-4xl max-w-[708px] font-bold text-slate-900">
           Generate questions for your Coffee Chats
         </h1>

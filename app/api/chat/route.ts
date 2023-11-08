@@ -10,10 +10,11 @@ const openai = new OpenAIApi(config);
 
 // Set the runtime to edge for best performance
 export const runtime = 'edge';
-
 export async function POST(req: Request) {
   const { vibe, bio } = await req.json();
   await kv.incr('coffeecounter');
+  const user = await kv.get('coffeecounter');
+  console.log('Incremented to :', user); // Log the fetched data
 
   // Ask OpenAI for a streaming completion given the prompt
   const response = await openai.createChatCompletion({
