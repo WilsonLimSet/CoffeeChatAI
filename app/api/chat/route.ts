@@ -1,9 +1,14 @@
 import { Configuration, OpenAIApi } from 'openai-edge';
 import { OpenAIStream, StreamingTextResponse } from 'ai';
 import { kv } from '@vercel/kv';
-
 // Create an OpenAI API client (that's edge friendly!)
 // YOU NEED TO CHANGE THIS TO OPENAI_API_KEY WHEN PUSHING AND KEEP IT ON REACT_APP_OPENAI_API_KEY FOR LOCAL
+console.log('API Key:', process.env.OPENAI_API_KEY);
+
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error('OPENAI_API_KEY is not set');
+}
+
 const config = new Configuration({
   //apiKey: process.env.REACT_APP_OPENAI_API_KEY,
   apiKey: process.env.OPENAI_API_KEY,

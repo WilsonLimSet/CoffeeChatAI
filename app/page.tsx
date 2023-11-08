@@ -1,5 +1,4 @@
 'use client';
-
 import Image from 'next/image';
 import { useRef, useState, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
@@ -13,9 +12,6 @@ export default function Page() {
   const [vibe, setVibe] = useState<VibeType>('Professional');
   const bioRef = useRef<null | HTMLDivElement>(null);
   const [coffeeChatsAided, setCoffeeChatsAided] = useState(0);
-
-  
-  
 
   const scrollToBios = () => {
     if (bioRef.current !== null) {
