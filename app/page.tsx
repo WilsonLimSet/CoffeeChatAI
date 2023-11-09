@@ -82,10 +82,16 @@ export default function Page() {
   return (
     <div className="flex max-w-5xl mx-auto flex-col items-center justify-center py-2 min-h-screen">
       <main className="flex flex-1 w-full flex-col items-center justify-center text-center px-4 mt-4 sm:mt-4">
+     
         <h1 className="sm:text-6xl text-4xl max-w-[708px] font-bold text-slate-900">
           Generate questions for your Coffee Chats
         </h1>
         <p className="text-slate-500 mt-5">
+        <a href="https://www.producthunt.com/posts/coffee-chat-ai?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-coffee&#0045;chat&#0045;ai" 
+      target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=424418&theme=neutral" 
+      alt="Coffee Chat AI - Podcast and Coffee Chat Question Generator | Product Hunt"
+      style={{ width: '250px', height: '54px' }} 
+      width="250" height="54" /></a>
           {coffeeChatsAided} coffee chats aided so far.
         </p>
         <form className="max-w-xl w-full" onSubmit={onSubmit}>
