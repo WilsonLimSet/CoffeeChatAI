@@ -15,3 +15,4 @@ export async function GET() {
 
   return res;
 }
+export const revalidate = 0;
