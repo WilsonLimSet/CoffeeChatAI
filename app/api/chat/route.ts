@@ -15,6 +15,7 @@ export async function POST(req: Request) {
   await kv.incr('coffeecounter');
   const user = await kv.get('coffeecounter');
   console.log('Incremented to :', user); // Log the fetched data
+  console.log('Bio to ask on :', bio); // Log the fetched data
 
   // Ask OpenAI for a streaming completion given the prompt
   const response = await openai.createChatCompletion({
