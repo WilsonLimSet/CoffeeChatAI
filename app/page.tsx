@@ -6,6 +6,8 @@ import DropDown, { VibeType } from '../components/DropDown';
 import Footer from '../components/Footer';
 import { useChat } from 'ai/react';
 
+export const dynamic = "force-dynamic";
+export const revalidate=0
 export const fetchCache = 'force-no-store';
 export default function Page() {
   const [bio, setBio] = useState('');
@@ -35,7 +37,7 @@ export default function Page() {
       const fetchUpdatedCounter = async () => {
         const response = await fetch('/api/counter-coffee', {
           headers: {
-            'Cache-Control': 'no-cache',
+            'Cache-Control': 's-maxage=1',
           },
         });
         const data = await response.json();
