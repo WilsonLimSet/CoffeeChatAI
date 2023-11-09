@@ -35,11 +35,7 @@ export default function Page() {
     useEffect(() => {
       // Function to fetch the updated counter
       const fetchUpdatedCounter = async () => {
-        const response = await fetch('/api/counter-coffee', {
-          headers: {
-            'Cache-Control': 's-maxage=1',
-          },
-        });
+        const response = await fetch('/api/counter-coffee', { cache: 'no-store' } );
         const data = await response.json();
         if (typeof data === 'number') {
           setCoffeeChatsAided(data);
