@@ -63,21 +63,21 @@ export default function Page() {
 
   const onSubmit = async (e: any) => {
     e.preventDefault();
+    //console.log('Input :', input); // Log the fetched data
     setBio(input);
-    console.log("Bio before handleSubmit :", input); // Log the 'input' directly
-    handleSubmit(e);
+    //console.log('Bio to ask on on page after setBio:', bio); // Log the fetched data
+    if (bio) { // Only submit if there is some input
+      handleSubmit(e);
+      setBio("");
+    } else {
+      // Optionally, provide feedback to the user that they need to enter something
+      alert("Please enter a bio before generating.");
+    }
   };
 
   const lastMessage = messages[messages.length - 1];
   const generatedBios =
     lastMessage?.role === "assistant" ? lastMessage.content : null;
-
-  useEffect(() => {
-    if (bio) {
-      console.log("Bio after state update:", bio);
-      // Perform any action that depends on the updated bio value
-    }
-  }, [bio]);
 
   return (
     <div className="flex max-w-5xl mx-auto flex-col items-center justify-center py-2 min-h-screen">
@@ -119,12 +119,13 @@ export default function Page() {
           </div>
 
           {!isLoading && (
-            <button
-              className="bg-black rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-black/80 w-full"
-              type="submit"
-            >
-              Generate your questions &rarr;
-            </button>
+           <button
+           className="bg-black rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-black/80 w-full"
+           type="submit"
+           disabled={!input || isLoading} // Disable the button if input is empty or while loading
+         >
+           {isLoading ? 'Loading...' : 'Generate your questions →'}
+         </button>
           )}
           {isLoading && (
             <button

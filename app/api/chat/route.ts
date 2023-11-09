@@ -30,7 +30,7 @@ export async function POST(req: Request) {
             ? 'The questions should contain humor and be slightly ridiculous.'
             : 'The questions should be thoughtful and engaging.'
         } Ensure each question is concise and under 250 characters.
-        If you can't come up with anything say you need more a more specific bio, do not make up a person.
+        If you can't come up with anything say you need them to try again, do not make up a person.
         `,
       },
     ],
