@@ -36,6 +36,25 @@ export default function Page() {
     return data; // Make sure this is the updated counter value..
   }
 
+  useEffect(() => {
+    // Function to fetch the updated counter
+    const fetchUpdatedCounter = async () => {
+      const response = await fetch('/api/counter-coffee', { cache: 'no-store' } );
+      const data = await response.json();
+      if (typeof data === 'number') {
+        setCoffeeChatsAided(data);
+      } else {
+        console.error('Expected a number but received:', data);
+      }
+    };
+
+    if (!isLoading) {
+      // When isLoading is false, call the function to fetch the updated counter
+      fetchUpdatedCounter();
+    }
+    // This effect should run every time isLoading changes.
+  }, [isLoading]);
+
   const scrollToBios = () => {
     if (bioRef.current !== null) {
       bioRef.current.scrollIntoView({ behavior: "smooth" });
@@ -59,7 +78,7 @@ export default function Page() {
       // Perform any action that depends on the updated bio value
     }
   }, [bio]);
-  
+
   return (
     <div className="flex max-w-5xl mx-auto flex-col items-center justify-center py-2 min-h-screen">
       <main className="flex flex-1 w-full flex-col items-center justify-center text-center px-4 mt-4 sm:mt-4">
