@@ -12,15 +12,16 @@ export default function Footer() {
         >
         @susantoscott
         </a>
-        {/* , {' '}
+        , {' '}
         <a
           href="https://twitter.com/chrispramana"
           target="_blank"
           className="font-bold hover:underline transition underline-offset-2"
         >
         @chrispramana
-        </a> */}
-       {' '} and{' '}
+        </a>
+        {' '}
+        and {' '}
         <a
           href="https://twitter.com/WilsonLimSet"
           target="_blank"
