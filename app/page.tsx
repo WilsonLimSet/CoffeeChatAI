@@ -36,6 +36,11 @@ export default function Page() {
     return data; // Make sure this is the updated counter value..
   }
 
+  const onInputChange = (e:any) => {
+    setBio(input)
+    handleInputChange(e);
+  }
+
   useEffect(() => {
     // Function to fetch the updated counter
     const fetchUpdatedCounter = async () => {
@@ -63,16 +68,16 @@ export default function Page() {
 
   const onSubmit = async (e: any) => {
     e.preventDefault();
-    //console.log('Input :', input); // Log the fetched data
-    setBio(input);
-    //console.log('Bio to ask on on page after setBio:', bio); // Log the fetched data
-    if (bio) { // Only submit if there is some input
+    setBio(input)
+    // handleSubmit(e)
+    // setBio("")
+    // //console.log('Input :', input); // Log the fetched data
+    // setBio(input);
+    setTimeout(() => {
       handleSubmit(e);
       setBio("");
-    } else {
-      // Optionally, provide feedback to the user that they need to enter something
-      alert("Please enter a bio before generating.");
-    }
+    }, 500);
+  
   };
 
   const lastMessage = messages[messages.length - 1];
@@ -109,7 +114,7 @@ export default function Page() {
           </div>
           <textarea
             value={input}
-            onChange={handleInputChange}
+            onChange={onInputChange}
             rows={4}
             className="w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black my-5"
             placeholder={
