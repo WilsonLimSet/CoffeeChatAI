@@ -5,23 +5,9 @@ export default function Footer() {
     <footer className="text-center h-16 sm:h-20 w-full sm:pt-2 pt-4 border-t mt-5 flex sm:flex-row flex-col justify-between items-center px-3 space-y-3 sm:mb-0 mb-3">
       <div>
         Built by{' '} 
-        <a
-          href="https://twitter.com/susantoscott"
-          target="_blank"
-          className="font-bold hover:underline transition underline-offset-2"
-        >
-        @susantoscott
-        </a>
-        , {' '}
-        <a
-          href="https://twitter.com/chrispramana"
-          target="_blank"
-          className="font-bold hover:underline transition underline-offset-2"
-        >
-        @chrispramana
-        </a>
+       
         {' '}
-        and {' '}
+      
         <a
           href="https://twitter.com/WilsonLimSet"
           target="_blank"

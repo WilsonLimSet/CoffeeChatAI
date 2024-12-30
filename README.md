@@ -1,10 +1,7 @@
-# [Coffee Chat AI](https://www.coffeechatai.com/)
+NOTE: Here are the links associated with text-behind-image (where can you find and use this app):
+- https://textbehindimage.rexanwong.xyz
+- https://textbehindimage.app
 
-This project generates questions to ask on a Coffee Chat for you using AI.
+Recently, some copycats with the EXACT SAME landing page and design have been created. Please be aware of these sites. 
 
-[![Coffee Chat Generator](./public/coffeechatscreenshot.png)](https://www.coffeechatai.com/)
-
-## How it works
-Template taken from - https://www.twitterbio.io/
-
-This project uses the [ChatGPT API](https://openai.com/api/) and the [Vercel AI SDK](https://sdk.vercel.ai/docs) with streaming. It constructs a prompt based on the form and user input, sends it to the ChatGPT API with a Vercel Edge Function, then streams the response back to the application UI.
+Thank you all! No audience, no show :)

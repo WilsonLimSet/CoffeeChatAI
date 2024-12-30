@@ -1,37 +1,46 @@
+import type { Metadata } from "next";
 import { Analytics } from '@vercel/analytics/react';
-import { Metadata } from 'next';
-import '../styles/globals.css';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Inter } from 'next/font/google'
+import { GeistSans } from 'geist/font/sans';
+import "./globals.css";
+import SupabaseProvider from "@/providers/SupabaseProvider";
+import UserProvider from "@/providers/UserProvider";
+import { Toaster } from "@/components/ui/toaster"
+import { ThemeProvider } from "@/components/theme-provider";
 
-const title = 'CoffeeChat AI';
-const description = 'Generate questions for your Coffee Chats.';
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://coffeechatai'),
-  title,
-  description,
-  openGraph: {
-    title,
-    description,
-    locale: 'en_US',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title,
-    description,
-  },
+  title: "Coffee Chat AI",
+  description: "Create text behind image designs",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="en">
-      <body>
-        {children}
-        <Analytics />
+      <body className={GeistSans.className}>
+        <SupabaseProvider>
+            <UserProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="light"
+                enableSystem
+                disableTransitionOnChange
+              >
+                <div>
+                  {children}
+                  <Analytics />
+                  <SpeedInsights />
+                  <Toaster />
+                </div>
+              </ThemeProvider>
+            </UserProvider>
+        </SupabaseProvider>
       </body>
     </html>
   );
