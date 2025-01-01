@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from "framer-motion";
 import { HeroHighlight, Highlight } from '@/components/ui/hero-highlight';
 import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
@@ -8,7 +8,20 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
 
-const page = () => {
+const Page = () => {
+    const [coffeeChatsAided, setCoffeeChatsAided] = useState(0);
+
+    useEffect(() => {
+        const fetchCounter = async () => {
+            const response = await fetch('/api/counter-coffee', {
+                cache: 'no-store'
+            });
+            const data = await response.json();
+            setCoffeeChatsAided(data);
+        };
+        fetchCounter();
+    }, []);
+
     return ( 
         <div className='flex flex-col min-h-screen items-center w-full'>
             <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1609710199882100" crossOrigin="anonymous"></script>
@@ -30,6 +43,10 @@ const page = () => {
             <div className="text-lg text-center font-semibold mb-4">
                 AI-powered question generator for meaningful networking conversations
             </div>
+            
+            <p className="text-m font-semibold text-slate-600 dark:text-slate-400 mb-6">
+                {coffeeChatsAided.toLocaleString()} coffee chats aided so far
+            </p>
 
             <Link href={'/app'} className='mb-10'>
                 <HoverBorderGradient containerClassName="rounded-full" as="button" className="dark:bg-black bg-white text-black dark:text-white flex items-center space-x-2">
@@ -54,7 +71,6 @@ const page = () => {
                             <li>• How has the M&A landscape evolved since your transition from Morgan Stanley to Goldman Sachs?</li>
                             <li>• What emerging trends in fintech are you most excited about implementing in traditional banking?</li>
                             <li>• Could you share your perspective on the intersection of private equity and sustainable finance?</li>
-                            <li>• How did your Wharton MBA shape your approach to deal structuring and valuation?</li>
                         </ul>
                     </div>
                 </div>
@@ -65,4 +81,4 @@ const page = () => {
     );
 }
 
-export default page;
+export default Page;

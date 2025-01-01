@@ -26,7 +26,7 @@ export async function POST(req: Request, res: Response) {
                     user_id: user_id
                 },
                 mode: 'subscription',
-                success_url: `http://textbehindimage.rexanwong.xyz/app`,
+                success_url: `https://www.coffeechatai.com/app`,
         });
 
         return Response.json({ paymentLink: session.url });

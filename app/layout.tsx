@@ -13,7 +13,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: "Coffee Chat AI",
-  description: "Create text behind image designs",
+  description: "Generate Smart Questions for Coffee Chats",
 };
 
 export default function RootLayout({

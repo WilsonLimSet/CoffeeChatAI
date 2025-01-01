@@ -3,20 +3,22 @@ import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import { FcGoogle } from "react-icons/fc"
 import { useSupabaseClient } from "@supabase/auth-helpers-react"
+import { useRouter } from 'next/navigation'
 
 const Authenticate = () => {
   const supabase = useSupabaseClient()
   const { toast } = useToast()
+  const router = useRouter()
   
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error, data } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
             queryParams: {
                 access_type: 'offline',
                 prompt: 'consent',
             },
-            redirectTo: 'https://www.coffeechatai.com/'
+            redirectTo: `${window.location.origin}/app`
         },
     })
 

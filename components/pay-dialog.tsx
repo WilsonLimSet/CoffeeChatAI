@@ -45,7 +45,7 @@ const PlanCard: React.FC<Plan> = ({ userDetails, userEmail, title, description, 
             const response = await axios.post('/api/create-checkout-session', {
                 user_id: userDetails.id,
                 email: userEmail,
-                plan_name: "Text Behind Image Pro Plan",
+                plan_name: "Coffee Chat AI Pro Plan",
             });
 
             router.push(response.data.paymentLink);
@@ -163,17 +163,17 @@ const PayDialog: React.FC<PayDialogProps> = ({ userDetails, userEmail, isOpen, o
             userDetails={userDetails}
             userEmail={userEmail}
             title="Free"
-            description="The text behind image experience with some limitations"
+            description="The coffee chat ai experience"
             price="$0"
-            features={["2 free generations / account", "Access to 6 free fonts"]}
+            features={["2 free generations / account"]}
           />
           <PlanCard 
             userDetails={userDetails}
             userEmail={userEmail}
             title="Pro ✨"
-            description="Everything in the free plan, plus more that makes your tbi designs better"
+            description="Everything in the free plan, plus more"
             price="$4"
-            features={["Unlimited generations / account", "Access to all 250 fonts"]}
+            features={["Unlimited generations / account"]}
           />
         </div> 
       </DialogContent>
