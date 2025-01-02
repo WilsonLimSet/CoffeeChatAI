@@ -1,11 +1,10 @@
-// app/app/page.tsx
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, ChangeEvent, FormEvent } from 'react';
 import { useUser } from '@/hooks/useUser';
 import { useSessionContext, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from '@/components/mode-toggle'; 
+import { ModeToggle } from '@/components/mode-toggle';
 import { Profile } from '@/types';
 import Authenticate from '@/components/authenticate';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,37 +16,76 @@ import { useChat } from "ai/react";
 import PayDialog from '@/components/pay-dialog';
 import Image from "next/image";
 
-const Page = () => {
+interface ScrapingResponse {
+    success: boolean;
+    content?: string;
+    error?: string;
+}
+
+type InputType = 'bio' | 'url';
+type VibeType = 'Professional' | 'Casual';
+
+const Page: React.FC = () => {
     const { user } = useUser();
     const { session } = useSessionContext();
     const supabaseClient = useSupabaseClient();
-    const [currentUser, setCurrentUser] = useState<Profile>();
-    const [isPayDialogOpen, setIsPayDialogOpen] = useState(false);
+    const [currentUser, setCurrentUser] = useState<Profile | undefined>();
+    const [isPayDialogOpen, setIsPayDialogOpen] = useState<boolean>(false);
     const { toast } = useToast();
-    const [coffeeChatsAided, setCoffeeChatsAided] = useState(0);
-    const bioRef = useRef<null | HTMLDivElement>(null);
-    const [vibe, setVibe] = useState("Professional");
-    const [bio, setBio] = useState("");
-    const [streamedResponse, setStreamedResponse] = useState('');
-    const [accumulatedText, setAccumulatedText] = useState('');
+    const [coffeeChatsAided, setCoffeeChatsAided] = useState<number>(0);
+    const bioRef = useRef<HTMLDivElement | null>(null);
+    const [vibe, setVibe] = useState<VibeType>("Professional");
+    const [bioInput, setBioInput] = useState<string>('');
+    const [urlInput, setUrlInput] = useState<string>('');
+    const [inputType, setInputType] = useState<InputType>('bio');
+    const [streamedResponse, setStreamedResponse] = useState<string>('');
+    const [accumulatedText, setAccumulatedText] = useState<string>('');
+    const [url, setUrl] = useState<string>('');
+    const [isScrapingLoading, setIsScrapingLoading] = useState<boolean>(false);
+    const [questions, setQuestions] = useState<string[]>([]);
+    const [isChatLoading, setIsChatLoading] = useState<boolean>(false);
     
+    // Track if component is mounted
+    const isMounted = useRef<boolean>(true);
+    const abortControllerRef = useRef<AbortController | null>(null);
+
+    useEffect(() => {
+        return () => {
+            isMounted.current = false;
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
+    }, []);
 
     const scrollToBios = () => {
         if (bioRef.current !== null) {
             bioRef.current.scrollIntoView({ behavior: "smooth" });
         }
     };
-    const [questions, setQuestions] = useState<string[]>([]);
 
-    const { input, handleInputChange, handleSubmit, isLoading, messages } = useChat({
+    const handleBioChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+        setBioInput(e.target.value);
+        handleInputChange(e);
+    };
+
+    const isFormValid = (): boolean => {
+        if (inputType === 'bio') {
+            return input.length >= 20;
+        } else {
+            return isValidUrl(url);
+        }
+    };
+
+    const { input, handleInputChange, handleSubmit, messages } = useChat({
         api: '/api/chat',
         body: {
             vibe,
-            bio,
+            bio: bioInput,
         },
         onResponse(response) {
             // Check if user has reached their limit
-            if (currentUser && !currentUser.paid && currentUser.images_generated >= 2) {
+            if (currentUser && !currentUser.paid && (currentUser.images_generated ?? 0) >= 2) {
                 toast({
                     title: "Generation limit reached",
                     description: "You've reached your free limit. Upgrade to continue generating questions.",
@@ -60,32 +98,46 @@ const Page = () => {
             const reader = response.body?.getReader();
             if (reader) {
                 (async () => {
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
-                        const text = new TextDecoder().decode(value);
-                        accumulated += text;
-                        
-                        const processedQuestions = accumulated
-                            .split('\n')
-                            .map(q => q.trim())
-                            .filter(q => q.length > 0);
-                        
-                        setQuestions(processedQuestions);
-                        setStreamedResponse(accumulated);
-                    }
-
-                    // Increment the generation count after successful generation
-                    if (currentUser) {
-                        const { data, error } = await supabaseClient
-                            .from('profiles')
-                            .update({ images_generated: (currentUser.images_generated || 0) + 1 })
-                            .eq('id', currentUser.id)
-                            .select()
-                            .single();
+                    try {
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+                            const text = new TextDecoder().decode(value);
+                            accumulated += text;
                             
-                        if (data) {
-                            setCurrentUser(data);
+                            if (!isMounted.current) return;
+                            
+                            const processedQuestions = accumulated
+                                .split('\n')
+                                .map(q => q.trim())
+                                .filter(q => q.length > 0);
+                            
+                            setQuestions(processedQuestions);
+                            setStreamedResponse(accumulated);
+                        }
+
+                        // Increment the generation count after successful generation
+                        if (currentUser && isMounted.current) {
+                            const { data, error } = await supabaseClient
+                                .from('profiles')
+                                .update({ 
+                                    images_generated: (currentUser.images_generated ?? 0) + 1 
+                                })
+                                .eq('id', currentUser.id)
+                                .select()
+                                .single();
+                                
+                            if (data) {
+                                setCurrentUser(data);
+                            }
+                        }
+                    } catch (error) {
+                        if (error instanceof Error && error.name !== 'AbortError') {
+                            toast({
+                                title: "Error generating questions",
+                                description: error.message,
+                                variant: "destructive"
+                            });
                         }
                     }
                 })();
@@ -94,10 +146,19 @@ const Page = () => {
             scrollToBios();
             fetchUpdatedCounter().then(setCoffeeChatsAided);
         },
-        onFinish(message) {
-            // Final processing is optional now since we're handling it in the stream
-            console.log('Stream finished');
+        onFinish() {
+            if (!isMounted.current) return;
+            setIsChatLoading(false);
         },
+        onError(error: Error) {
+            if (!isMounted.current) return;
+            setIsChatLoading(false);
+            // toast({
+            //     title: "Error generating questions",
+            //     description: error.message,
+            //     variant: "destructive"
+            // });
+        }
     });
 
     useEffect(() => {
@@ -106,11 +167,7 @@ const Page = () => {
         }
     }, [messages]);
 
-    useEffect(() => {
-        setBio(input);
-    }, [input]);
-
-    async function fetchUpdatedCounter() {
+    const fetchUpdatedCounter = async (): Promise<number> => {
         const response = await fetch("/api/counter-coffee", {
             headers: {
                 "Cache-Control": "no-cache",
@@ -118,18 +175,16 @@ const Page = () => {
         });
         const data = await response.json();
         return data;
-    }
+    };
 
-    const getCurrentUser = async (userId: string) => {
+    const getCurrentUser = async (userId: string): Promise<void> => {
         try {
-            // First try to get the profile
             let { data: profile, error } = await supabaseClient
                 .from('profiles')
                 .select('*')
                 .eq('id', userId)
-                .single()
+                .single();
 
-            // If no profile exists, create one
             if (!profile) {
                 const newProfile = {
                     id: userId,
@@ -138,22 +193,22 @@ const Page = () => {
                     email: user?.email || '',
                     images_generated: 0,
                     paid: false,
-                }
+                };
 
                 const { data: createdProfile, error: createError } = await supabaseClient
                     .from('profiles')
                     .insert([newProfile])
                     .select()
-                    .single()
+                    .single();
 
-                if (createError) throw createError
-                profile = createdProfile
+                if (createError) throw createError;
+                profile = createdProfile;
             }
 
-            if (error && error.code !== 'PGRST116') throw error // PGRST116 is the error code for no rows returned
+            if (error && error.code !== 'PGRST116') throw error;
 
-            if (profile) {
-                setCurrentUser(profile)
+            if (profile && isMounted.current) {
+                setCurrentUser(profile);
             }
         } catch (error) {
             console.error('Error fetching/creating user profile:', error);
@@ -162,17 +217,187 @@ const Page = () => {
 
     useEffect(() => {
         if (user?.id) {
-            getCurrentUser(user.id)
+            getCurrentUser(user.id);
         }
-    }, [user])
-    
+    }, [user]);
+
     useEffect(() => {
         const getCounter = async () => {
             const count = await fetchUpdatedCounter();
-            setCoffeeChatsAided(count);
+            if (isMounted.current) {
+                setCoffeeChatsAided(count);
+            }
         };
         getCounter();
     }, []);
+
+    const isValidUrl = (urlString: string): boolean => {
+        try {
+            const urlObj = new URL(urlString);
+            return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+        } catch {
+            return false;
+        }
+    };
+
+    const handleUrlScrape = async (url: string): Promise<string | null> => {
+        if (!isMounted.current) return null;
+        
+        try {
+            // Check for LinkedIn URLs
+            if (url.includes('linkedin.com')) {
+                toast({
+                    title: "LinkedIn profiles cannot be scraped",
+                    description: "Please copy and paste the bio text directly instead",
+                    variant: "destructive"
+                });
+                return null;
+            }
+
+            const response = await fetch('/api/firecrawl', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url }),
+                signal: abortControllerRef.current?.signal
+            });
+
+            if (!isMounted.current) return null;
+
+            if (!response.ok) {
+                throw new Error('Failed to scrape URL');
+            }
+
+            const data: ScrapingResponse = await response.json();
+            
+            if (!isMounted.current) return null;
+
+            if (data.success && data.content) {
+                toast({
+                    title: "Profile extracted successfully",
+                    description: "Generating questions...",
+                });
+                return data.content;
+            } else {
+                throw new Error(data.error || 'No content found');
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                if (error.name === 'AbortError') {
+                    return null;
+                }
+                throw error;
+            }
+            throw new Error('An unknown error occurred');
+        }
+    };
+
+    const handleFormSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        
+        // Clear existing questions when starting a new generation
+        setQuestions([]);
+        setStreamedResponse('');
+        setIsChatLoading(true);
+        
+        try {
+            if (inputType === 'url') {
+                setIsScrapingLoading(true);
+                const content = await handleUrlScrape(url);
+                if (!content || !isMounted.current) {
+                    setIsChatLoading(false);
+                    setIsScrapingLoading(false);
+                    return;
+                }
+                
+                // Make a direct API call instead of using handleSubmit
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        vibe,
+                        bio: content,
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate questions');
+                }
+
+                // Process the streaming response
+                const reader = response.body?.getReader();
+                if (reader) {
+                    let accumulated = '';
+                    try {
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+                            const text = new TextDecoder().decode(value);
+                            accumulated += text;
+                            
+                            if (!isMounted.current) return;
+                            
+                            const processedQuestions = accumulated
+                                .split('\n')
+                                .map(q => q.trim())
+                                .filter(q => q.length > 0);
+                            
+                            setQuestions(processedQuestions);
+                            setStreamedResponse(accumulated);
+                        }
+
+                        // Increment the generation count after successful generation
+                        if (currentUser && isMounted.current) {
+                            const { data } = await supabaseClient
+                                .from('profiles')
+                                .update({ 
+                                    images_generated: (currentUser.images_generated ?? 0) + 1 
+                                })
+                                .eq('id', currentUser.id)
+                                .select()
+                                .single();
+                                
+                            if (data) {
+                                setCurrentUser(data);
+                            }
+                        }
+                    } catch (error) {
+                        if (error instanceof Error && error.name !== 'AbortError') {
+                            throw error;
+                        }
+                    }
+                }
+                
+                setIsScrapingLoading(false);
+                scrollToBios();
+                fetchUpdatedCounter().then(setCoffeeChatsAided);
+            } else {
+                if (input.length < 20) {
+                    toast({
+                        title: "Bio too short",
+                        description: "Please enter at least 20 characters",
+                        variant: "destructive"
+                    });
+                    setIsChatLoading(false);
+                    return;
+                }
+                await handleSubmit(e);
+            }
+        } catch (error) {
+            setIsChatLoading(false);
+            setIsScrapingLoading(false);
+            toast({
+                title: "Error processing request",
+                description: error instanceof Error ? error.message : "Please try again",
+                variant: "destructive"
+            });
+        } finally {
+            setIsChatLoading(false);
+        }
+    };
+
+    const isLoading = isScrapingLoading || isChatLoading;
 
     return (
         <>
@@ -188,27 +413,26 @@ const Page = () => {
                             </p>
                         </div>
                         <div className='flex gap-4 items-center'>
-                                <div className='hidden md:block font-semibold'>
-                                    {currentUser.paid ? (
+                            <div className='hidden md:block font-semibold'>
+                                {currentUser.paid ? (
+                                    <p className='text-sm'>
+                                        Unlimited generations
+                                    </p>
+                                ) : (
+                                    <div className='flex items-center gap-2'>
                                         <p className='text-sm'>
-                                            Unlimited generations
+                                            {2 - (currentUser.images_generated ?? 0)} generations left
                                         </p>
-                                    ) : (
-                                        <div className='flex items-center gap-2'>
-                                            <p className='text-sm'>
-                                                {2 - (currentUser.images_generated)} generations left
-                                            </p>
-                                            <Button 
-                                                variant="link" 
-                                                className="p-0 h-auto text-sm text-primary hover:underline"
-                                                onClick={() => setIsPayDialogOpen(true)}
-                                            >
-                                                Upgrade
-                                            </Button>
-                                        </div>
-                                    )}
-                                </div>
-                            {/* <ModeToggle /> */}
+                                        <Button 
+                                            variant="link" 
+                                            className="p-0 h-auto text-sm text-primary hover:underline"
+                                            onClick={() => setIsPayDialogOpen(true)}
+                                        >
+                                            Upgrade
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Avatar className="cursor-pointer">
@@ -240,15 +464,46 @@ const Page = () => {
                                         alt="1 icon"
                                         className="mb-5 sm:mb-0"
                                     />
-                                    <h3 className="text-xl font-semibold">Copy a short bio about the person you are meeting</h3>
+                                    <h3 className="text-xl font-semibold">Enter information about the person</h3>
                                 </div>
 
-                                <Textarea 
-                                    value={input}
-                                    onChange={handleInputChange}
-                                    placeholder="e.g. Patrick Collison (born 9 September 1988) is an Irish billionaire entrepreneur..."
-                                    className="min-h-[100px] text-base"
-                                />
+                                <div className="flex gap-2 mb-2">
+                                    <Button 
+                                        variant={inputType === 'bio' ? 'default' : 'outline'}
+                                        onClick={() => setInputType('bio')}
+                                        disabled={isLoading}
+                                    >
+                                        Paste Bio
+                                    </Button>
+                                    <Button 
+                                        variant={inputType === 'url' ? 'default' : 'outline'}
+                                        onClick={() => setInputType('url')}
+                                        disabled={isLoading}
+                                    >
+                                        Use URL
+                                    </Button>
+                                </div>
+
+                                {inputType === 'bio' ? (
+                                    <Textarea 
+                                        value={input}
+                                        onChange={handleBioChange}
+                                        placeholder="e.g. Patrick Collison (born 9 September 1988) is an Irish billionaire entrepreneur..."
+                                        className="min-h-[100px] text-base"
+                                        disabled={isLoading}
+                                    />
+                                ) : (
+                                    <div className="space-y-2">
+                                        <input
+                                            type="url"
+                                            value={url}
+                                            onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
+                                            placeholder="Paste profile URL (e.g. personal website)"
+                                            className="w-full p-2 border rounded"
+                                            disabled={isLoading}
+                                        />
+                                    </div>
+                                )}
                             </div>
 
                             <div className="space-y-3">
@@ -257,7 +512,11 @@ const Page = () => {
                                     <h3 className="text-xl font-semibold">Select your vibe</h3>
                                 </div>
 
-                                <Select value={vibe} onValueChange={setVibe}>
+                                <Select 
+                                    value={vibe} 
+                                    onValueChange={(value: VibeType) => setVibe(value)}
+                                    disabled={isLoading}
+                                >
                                     <SelectTrigger className="text-base h-10">
                                         <SelectValue />
                                     </SelectTrigger>
@@ -268,22 +527,44 @@ const Page = () => {
                                 </Select>
                             </div>
 
-                            <Button 
-                                onClick={(e) => handleSubmit(e as any)} 
-                                disabled={!input || isLoading || (!currentUser?.paid && currentUser?.images_generated >= 2)}
-                                className="w-full h-10 text-base font-medium"
+                            <div 
+                                onClick={() => {
+                                    if (inputType === 'bio' && input.length < 20) {
+                                        toast({
+                                            title: "Bio too short",
+                                            description: "Please enter at least 20 characters",
+                                            variant: "destructive"
+                                        });
+                                    } else if (inputType === 'url' && !isValidUrl(url)) {
+                                        toast({
+                                            title: "Invalid URL",
+                                            description: "Please enter a valid URL starting with http:// or https://",
+                                            variant: "destructive"
+                                        });
+                                    }
+                                }}
                             >
-                                {!currentUser?.paid && currentUser?.images_generated >= 2 ? (
-                                    'Upgrade to generate more questions'
-                                ) : isLoading ? (
-                                    <div className="flex items-center gap-2">
-                                        <span className="animate-spin">⏳</span> 
-                                        Generating...
-                                    </div>
-                                ) : (
-                                    'Generate your questions →'
-                                )}
-                            </Button>
+                                <Button 
+                                    onClick={handleFormSubmit}
+                                    disabled={
+                                        !isFormValid() || 
+                                        isLoading || 
+                                        (!currentUser?.paid && (currentUser?.images_generated ?? 0) >= 2)
+                                    }
+                                    className="w-full h-10 text-base font-medium"
+                                >
+                                    {!currentUser?.paid && (currentUser?.images_generated ?? 0) >= 2 ? (
+                                        'Upgrade to generate more questions'
+                                    ) : isLoading ? (
+                                        <div className="flex items-center gap-2">
+                                            <span className="animate-spin">⏳</span> 
+                                            {isScrapingLoading ? 'Extracting info...' : 'Generating...'}
+                                        </div>
+                                    ) : (
+                                        'Generate your questions →'
+                                    )}
+                                </Button>
+                            </div>
 
                             {questions.length > 0 && (
                                 <output className="space-y-4 mt-8 mb-6">
@@ -304,7 +585,7 @@ const Page = () => {
                                         border border-gray-200 dark:border-gray-700"
                                         onClick={() => {
                                             const formattedQuestions = questions
-                                                .map((q, i) => `• ${q}`)
+                                                .map((q: string) => `• ${q}`)
                                                 .join('\n\n');
                                             navigator.clipboard.writeText(formattedQuestions);
                                             toast({
@@ -314,7 +595,7 @@ const Page = () => {
                                         }}
                                     >
                                         <div className="space-y-4">
-                                            {questions.map((question, index) => (
+                                            {questions.map((question: string, index: number) => (
                                                 <p key={index} className="text-base text-gray-800 dark:text-gray-200 leading-relaxed">
                                                     • {question}
                                                 </p>
@@ -329,12 +610,14 @@ const Page = () => {
             ) : (
                 <Authenticate />
             )}
-            <PayDialog 
-                userDetails={currentUser as any} 
-                userEmail={user?.user_metadata.email} 
-                isOpen={isPayDialogOpen} 
-                onClose={() => setIsPayDialogOpen(false)} 
-            />
+            {currentUser && (
+                <PayDialog 
+                    userDetails={currentUser}
+                    userEmail={user?.user_metadata?.email}
+                    isOpen={isPayDialogOpen}
+                    onClose={() => setIsPayDialogOpen(false)}
+                />
+            )}
         </>
     );
 };
