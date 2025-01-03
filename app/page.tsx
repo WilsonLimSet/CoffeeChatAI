@@ -1,199 +1,84 @@
-"use client";
-import Image from "next/image";
-import { useRef, useState, useEffect } from "react";
-import { Toaster, toast } from "react-hot-toast";
-import DropDown, { VibeType } from "../components/DropDown";
-import Footer from "../components/Footer";
-import { useChat } from "ai/react";
+'use client';
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const fetchCache = "force-no-store";
-export default function Page() {
-  const [bio, setBio] = useState("");
-  const [vibe, setVibe] = useState<VibeType>("Professional");
-  const bioRef = useRef<null | HTMLDivElement>(null);
-  const [coffeeChatsAided, setCoffeeChatsAided] = useState(0);
-  const { input, handleInputChange, handleSubmit, isLoading, messages } =
-    useChat({
-      body: {
-        vibe,
-        bio,
-      },
-      onResponse() {
-        scrollToBios();
-        fetchUpdatedCounter().then(setCoffeeChatsAided);
-      },
-    });
+import React, { useEffect, useState } from 'react';
+import { motion } from "framer-motion";
+import { HeroHighlight, Highlight } from '@/components/ui/hero-highlight';
+import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
+import Link from 'next/link';
+import Footer from '@/components/Footer';
+import Image from 'next/image';
 
-  async function fetchUpdatedCounter() {
-    const response = await fetch("/api/counter-coffee", {
-      headers: {
-        "Cache-Control": "no-cache",
-      },
-    });
-    const data = await response.json();
-    return data; // Make sure this is the updated counter value..
-  }
+const Page = () => {
+    const [coffeeChatsAided, setCoffeeChatsAided] = useState(0);
 
-  const onInputChange = (e:any) => {
-    setBio(input)
-    handleInputChange(e);
-  }
+    useEffect(() => {
+        const fetchCounter = async () => {
+            const response = await fetch('/api/counter-coffee', {
+                cache: 'no-store'
+            });
+            const data = await response.json();
+            setCoffeeChatsAided(data);
+        };
+        fetchCounter();
+    }, []);
 
-  useEffect(() => {
-    // Function to fetch the updated counter
-    const fetchUpdatedCounter = async () => {
-      const response = await fetch('/api/counter-coffee', { cache: 'no-store' } );
-      const data = await response.json();
-      if (typeof data === 'number') {
-        setCoffeeChatsAided(data);
-      } else {
-        console.error('Expected a number but received:', data);
-      }
-    };
-
-    if (!isLoading) {
-      // When isLoading is false, call the function to fetch the updated counter
-      fetchUpdatedCounter();
-    }
-    // This effect should run every time isLoading changes.
-  }, [isLoading]);
-
-  const scrollToBios = () => {
-    if (bioRef.current !== null) {
-      bioRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  const onSubmit = async (e: any) => {
-    e.preventDefault();
-    setBio(input)
-    // handleSubmit(e)
-    // setBio("")
-    // //console.log('Input :', input); // Log the fetched data
-    // setBio(input);
-    setTimeout(() => {
-      handleSubmit(e);
-      setBio("");
-    }, 500);
-  
-  };
-
-  const lastMessage = messages[messages.length - 1];
-  const generatedBios =
-    lastMessage?.role === "assistant" ? lastMessage.content : null;
-
-  return (
-    <div className="flex max-w-5xl mx-auto flex-col items-center justify-center py-2 min-h-screen">
-      <main className="flex flex-1 w-full flex-col items-center justify-center text-center px-4 mt-4 sm:mt-4">
-     
-        <h1 className="sm:text-6xl text-4xl max-w-[708px] font-bold text-slate-900">
-          Generate questions for your Coffee Chats
-        </h1>
-        <p className="text-slate-500 mt-5">
-        <a href="https://www.producthunt.com/posts/coffee-chat-ai?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-coffee&#0045;chat&#0045;ai" 
-      target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=424418&theme=neutral" 
-      alt="Coffee Chat AI - Podcast and Coffee Chat Question Generator | Product Hunt"
-      style={{ width: '250px', height: '54px' }} 
-      width="250" height="54" /></a>
-          {coffeeChatsAided} coffee chats aided so far.
-        </p>
-        <form className="max-w-xl w-full" onSubmit={onSubmit}>
-          <div className="flex mt-10 items-center space-x-3">
-            <Image
-              src="/1-black.png"
-              width={30}
-              height={30}
-              alt="1 icon"
-              className="mb-5 sm:mb-0"
-            />
-            <p className="text-left font-medium">
-              Copy a short bio about the person you are meeting.
-            </p>
-          </div>
-          <textarea
-            value={input}
-            onChange={onInputChange}
-            rows={4}
-            className="w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black my-5"
-            placeholder={
-              "e.g. Patrick Collison (born 9 September 1988) is an Irish billionaire entrepreneur. He is the co-founder and CEO of Stripe, which he started with his younger brother, John, in 2010."
-            }
-          />
-          <div className="flex mb-5 items-center space-x-3">
-            <Image src="/2-black.png" width={30} height={30} alt="1 icon" />
-            <p className="text-left font-medium">Select your vibe.</p>
-          </div>
-          <div className="block">
-            <DropDown vibe={vibe} setVibe={(newVibe) => setVibe(newVibe)} />
-          </div>
-
-          {!isLoading && (
-           <button
-           className="bg-black rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-black/80 w-full"
-           type="submit"
-           disabled={!input || isLoading} // Disable the button if input is empty or while loading
-         >
-           {isLoading ? 'Loading...' : 'Generate your questions →'}
-         </button>
-          )}
-          {isLoading && (
-            <button
-              className="bg-black rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-black/80 w-full"
-              disabled
-            >
-              <span className="loading">
-                <span style={{ backgroundColor: "white" }} />
-                <span style={{ backgroundColor: "white" }} />
-                <span style={{ backgroundColor: "white" }} />
-              </span>
-            </button>
-          )}
-        </form>
-        <Toaster
-          position="top-center"
-          reverseOrder={false}
-          toastOptions={{ duration: 2000 }}
-        />
-        <hr className="h-px bg-gray-700 border-1 dark:bg-gray-700" />
-        <output className="space-y-10 my-10">
-          {generatedBios && (
-            <>
-              <div>
-                <h2
-                  className="sm:text-4xl text-3xl font-bold text-slate-900 mx-auto"
-                  ref={bioRef}
+    return ( 
+        <div className='flex flex-col min-h-screen items-center w-full'>
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1609710199882100" crossOrigin="anonymous"></script>
+            <HeroHighlight>
+                <motion.h1
+                    initial={{ opacity: 0, y: 20 }} 
+                    animate={{ opacity: 1, y: [20, -5, 0] }} 
+                    transition={{ duration: 0.5, ease: [0.4, 0.0, 0.2, 1] }}
+                    className="text-3xl lg:text-5xl lg:leading-tight max-w-5xl mx-auto text-center tracking-tight font-bold text-black dark:text-white"
                 >
-                  Your generated questions
-                </h2>
-              </div>
-              <div className="space-y-8 flex flex-col items-center justify-center max-w-xl mx-auto">
-                {generatedBios
-                  .substring(generatedBios.indexOf("1") + 3)
-                  .split("2.")
-                  .map((generatedBio) => {
-                    return (
-                      <div
-                        className="bg-white rounded-xl shadow-md p-4 hover:bg-gray-100 transition cursor-copy border"
-                        onClick={() => {
-                          navigator.clipboard.writeText(generatedBio);
-                          toast("Bio copied to clipboard", {
-                            icon: "✂️",
-                          });
-                        }}
-                        key={generatedBio}
-                      >
-                        <p>{generatedBio}</p>
-                      </div>
-                    );
-                  })}
-              </div>
-            </>
-          )}
-        </output>
-      </main>
-      <Footer />
-    </div>
-  );
+                    Generate {" "}
+                    <Highlight className='text-white'>
+                        Smart Questions
+                    </Highlight>
+                    {" "} for Coffee Chats
+                </motion.h1>
+            </HeroHighlight>
+            
+            <div className="text-lg text-center font-semibold mb-4">
+                AI-powered question generator for meaningful networking conversations
+            </div>
+            
+            <p className="text-m font-semibold text-slate-600 dark:text-slate-400 mb-6">
+                {coffeeChatsAided.toLocaleString()} coffee chats aided so far
+            </p>
+
+            <Link href={'/app'} className='mb-10'>
+                <HoverBorderGradient containerClassName="rounded-full" as="button" className="dark:bg-black bg-white text-black dark:text-white flex items-center space-x-2">
+                    Generate Questions
+                </HoverBorderGradient>
+            </Link>
+
+            <div className="w-full max-w-6xl px-4 mt-12 mb-16">
+                <div className="grid md:grid-cols-2 gap-8 items-center">
+                    <div className="p-6 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+                        <h3 className="text-xl font-bold mb-4">Sample LinkedIn Bio</h3>
+                        <p className="text-gray-700 dark:text-gray-300">
+                            "Vice President at Goldman Sachs | Previously Investment Banking at Morgan Stanley | 
+                            Wharton MBA  | 
+                            Passionate about fintech innovation and sustainable finance"
+                        </p>
+                    </div>
+
+                    <div className="p-6 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+                        <h3 className="text-xl font-bold mb-4">AI Generated Questions</h3>
+                        <ul className="space-y-3 text-gray-700 dark:text-gray-300">
+                            <li>• How has the M&A landscape evolved since your transition from Morgan Stanley to Goldman Sachs?</li>
+                            <li>• What emerging trends in fintech are you most excited about implementing in traditional banking?</li>
+                            <li>• Could you share your perspective on the intersection of private equity and sustainable finance?</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <Footer />
+        </div>
+    );
 }
+
+export default Page;
