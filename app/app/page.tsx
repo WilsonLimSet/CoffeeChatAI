@@ -308,6 +308,7 @@ const Page: React.FC = () => {
                     setIsScrapingLoading(false);
                     return;
                 }
+                console.log(content);
                 
                 // Make a direct API call instead of using handleSubmit
                 const response = await fetch('/api/chat', {

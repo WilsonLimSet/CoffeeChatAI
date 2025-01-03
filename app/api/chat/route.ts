@@ -1,5 +1,6 @@
 import { streamText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
+import { NextResponse } from 'next/server';
 
 // Create a custom OpenAI provider instance with your API key
 const openaiProvider = createOpenAI({
@@ -9,7 +10,6 @@ const openaiProvider = createOpenAI({
 
 export const runtime = 'edge';
 
-// app/api/chat/route.ts
 export async function POST(req: Request) {
   try {
     const { vibe, bio } = await req.json();
@@ -50,26 +50,38 @@ export async function POST(req: Request) {
       ]
     });
 
-    return new Response(textStream, {
-      headers: {
-        'Content-Type': 'text/event-stream'
-      }
+    // Convert the textStream to a ReadableStream of Uint8Array
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        const reader = textStream.getReader();
+        
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            controller.enqueue(encoder.encode(value));
+          }
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        }
+      },
     });
-    
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    });
 
   } catch (error: any) {
     console.error('Chat API error:', error);
-    return new Response(
-      JSON.stringify({ 
-        error: 'Failed to generate questions', 
-        details: error.message 
-      }), 
-      { 
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    return NextResponse.json({ 
+      error: 'Failed to generate questions', 
+      details: error.message 
+    }, { status: 500 });
   }
 }
