@@ -4,15 +4,29 @@ AI-powered question generator for meaningful networking conversations and coffee
 
 ## Overview
 
-Coffee Chat AI helps you prepare for networking meetings by generating intelligent, contextual questions based on someone's professional background. Simply paste a LinkedIn bio or professional description, and get tailored questions that demonstrate genuine interest and understanding.
+Coffee Chat AI helps you prepare for networking meetings by generating intelligent, contextual questions based on someone's professional background. Simply paste a bio, or provide a website URL, and get tailored questions that show genuine interest and understanding.
 
 ## Features
 
 - 🤖 AI-powered question generation
+- 💬 Website scraping support for personal websites and profiles
 - 💬 Professional and casual conversation modes
 - ✨ Context-aware questions based on background
 - 📋 One-click copy to clipboard
 - 🔄 Unlimited generations for pro users
+
+## Input Methods
+
+1. **Direct Bio Input**
+   - Paste any professional bio or description
+   - Minimum 20 characters required
+   - Perfect for LinkedIn bios or other professional descriptions
+
+2. **Website Scraping**
+   - Input any personal website or profile URL
+   - Automatically extracts relevant biographical information
+   - Works with most personal websites and professional profiles
+   - Note: LinkedIn profiles cannot be directly scraped (paste the bio instead)
 
 ## Tech Stack
 
@@ -21,6 +35,7 @@ Coffee Chat AI helps you prepare for networking meetings by generating intellige
 - Tailwind CSS
 - Supabase Auth
 - OpenAI API
+- Firecrawl API (for website scraping)
 - Stripe Integration
 - Vercel KV
 
@@ -36,6 +51,7 @@ KV_URL=
 KV_REST_API_URL=
 KV_REST_API_TOKEN=
 KV_REST_API_READ_ONLY_TOKEN=
+FIRECRAWL_API_KEY=
 
 
 ## Getting Started
