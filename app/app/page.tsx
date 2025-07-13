@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, ChangeEvent, FormEvent } from 'react';
 import { useUser } from '@/hooks/useUser';
 import { useSessionContext, useSupabaseClient } from '@supabase/auth-helpers-react';
+import { createClient } from '@supabase/supabase-js';
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from '@/components/mode-toggle';
 import { Profile } from '@/types';
@@ -178,6 +179,7 @@ const Page: React.FC = () => {
     };
 
     const getCurrentUser = async (userId: string): Promise<void> => {
+        console.log('Getting current user for ID:', userId);
         try {
             let { data: profile, error } = await supabaseClient
                 .from('profiles')
@@ -185,29 +187,39 @@ const Page: React.FC = () => {
                 .eq('id', userId)
                 .single();
 
-            if (!profile) {
-                const newProfile = {
-                    id: userId,
-                    full_name: user?.user_metadata?.full_name || '',
-                    avatar_url: user?.user_metadata?.avatar_url || '',
-                    email: user?.email || '',
-                    images_generated: 0,
-                    paid: false,
-                };
+            console.log('Profile fetch result:', { profile, error });
 
-                const { data: createdProfile, error: createError } = await supabaseClient
-                    .from('profiles')
-                    .insert([newProfile])
-                    .select()
-                    .single();
+            if (error && error.code === 'PGRST116') {
+                // Profile doesn't exist, create it via API route
+                console.log('Profile not found, creating new profile...');
+                
+                const response = await fetch('/api/create-profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userId,
+                        email: user?.email || '',
+                        fullName: user?.user_metadata?.full_name || user?.email?.split('@')[0] || '',
+                        avatarUrl: user?.user_metadata?.avatar_url || user?.user_metadata?.picture || ''
+                    })
+                });
 
-                if (createError) throw createError;
-                profile = createdProfile;
+                const result = await response.json();
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                
+                profile = result.profile;
+                console.log('Profile created successfully:', profile);
+            } else if (error) {
+                throw error;
             }
 
-            if (error && error.code !== 'PGRST116') throw error;
-
             if (profile && isMounted.current) {
+                console.log('Setting current user:', profile);
                 setCurrentUser(profile);
             }
         } catch (error) {
@@ -216,8 +228,12 @@ const Page: React.FC = () => {
     };
 
     useEffect(() => {
+        console.log('User changed:', user);
         if (user?.id) {
+            console.log('User has ID, fetching profile...');
             getCurrentUser(user.id);
+        } else {
+            console.log('No user ID available');
         }
     }, [user]);
 
@@ -399,6 +415,8 @@ const Page: React.FC = () => {
 
     const isLoading = isScrapingLoading || isChatLoading;
 
+    console.log('Render check:', { user, session, currentUser });
+    
     return (
         <>
             {user && session && session.user && currentUser ? (

@@ -12,9 +12,11 @@ interface SupabaseProviderProps {
 const SupabaseProvider: React.FC<SupabaseProviderProps> = ({
     children
 }) => {
-    const [supabaseClient] = useState(() => 
-        createClientComponentClient<Database>()
-    )
+    const [supabaseClient] = useState(() => {
+        const client = createClientComponentClient<Database>();
+        console.log('Supabase client created with URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+        return client;
+    })
 
     return (
         <SessionContextProvider supabaseClient={supabaseClient}>

@@ -11,22 +11,31 @@ const Authenticate = () => {
   const router = useRouter()
   
   const signInWithGoogle = async () => {
-    const { error, data } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-            queryParams: {
-                access_type: 'offline',
-                prompt: 'consent',
-            },
-            redirectTo: `${window.location.origin}/app`
-        },
-    })
+    console.log('Starting Google sign in...');
+    
+    try {
+      const { error, data } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+              redirectTo: `${window.location.origin}/app`
+          },
+      })
 
-    if (error) {
-        toast({
-            title: "🔴 Something went wrong",
-            description: "Please try again.",
-        })
+      console.log('Sign in response:', { error, data });
+
+      if (error) {
+          console.error('Sign in error:', error);
+          toast({
+              title: "🔴 Something went wrong",
+              description: error.message || "Please try again.",
+          })
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      toast({
+          title: "🔴 Unexpected error",
+          description: "Please check the console for details.",
+      })
     }
   }
 
