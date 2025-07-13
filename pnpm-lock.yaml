@@ -90,8 +90,8 @@ importers:
         specifier: ^4.0.22
         version: 4.0.22(react@18.3.1)(zod@3.24.1)
       axios:
-        specifier: ^1.7.7
-        version: 1.7.9
+        specifier: ^1.8.2
+        version: 1.8.2
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1169,8 +1169,8 @@ packages:
     peerDependencies:
       postcss: ^8.1.0
 
-  axios@1.7.9:
-    resolution: {integrity: sha512-LhLcE7Hbiryz8oMDdDptSrWowmB4Bl6RCt6sIJKpRB4XtVf0iEgewX3au/pJqm+Py1kCASkb/FFKjxQaLtxJvw==}
+  axios@1.8.2:
+    resolution: {integrity: sha512-ls4GYBm5aig9vWx8AWDSGLpnpDQRtWAfrjU+EuytuODrFBkqesN2RkOQCBzrA1RQNHw1SmRMSDDDSwzNAYQ6Rg==}
 
   b4a@1.6.7:
     resolution: {integrity: sha512-OnAYlL5b7LEkALw87fUVafQw5rVR9RjwGd4KUwNQ6DrrNmaVaUCgLipfVlzrPQ4tWOR9P0IXGNOx50jYCCdSJg==}
@@ -1226,8 +1226,8 @@ packages:
     resolution: {integrity: sha512-8SFQbg/0hQ9xy3UNTB0YEnsNBbWfhf7RtnzpL7TkBiTBRfrQ9Fxcnz7VJsleJpyp6rVLvXiuORqjlHi5q+PYuA==}
     engines: {node: '>=10.16.0'}
 
-  call-bind-apply-helpers@1.0.1:
-    resolution: {integrity: sha512-BhYE+WDaywFg2TBWYNXAE+8B1ATnThNBqXHP5nQu0jWJdVvY2hvkpyB3qOmtmDePiS5/BDQ8wASEWGMWRG148g==}
+  call-bind-apply-helpers@1.0.2:
+    resolution: {integrity: sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==}
     engines: {node: '>= 0.4'}
 
   call-bound@1.0.3:
@@ -1395,8 +1395,12 @@ packages:
     resolution: {integrity: sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==}
     engines: {node: '>= 0.4'}
 
-  es-object-atoms@1.0.0:
-    resolution: {integrity: sha512-MZ4iQ6JwHOBQjahnjwaC1ZtIBH+2ohjamzAO3oaHcXYup7qxjF2fixyH+Q71voWHeOkI2q/TnJao/KfXYIZWbw==}
+  es-object-atoms@1.1.1:
+    resolution: {integrity: sha512-FGgH2h8zKNim9ljj7dankFPcICIK9Cp5bm+c2gQSYePhpaG5+esrLODihIorn+Pe6FGJzWhXQotPv73jTaldXA==}
+    engines: {node: '>= 0.4'}
+
+  es-set-tostringtag@2.1.0:
+    resolution: {integrity: sha512-j6vWzfrGVfyXxge+O0x5sh6cvxAog0a/4Rdd2K36zCMV5eJ+/+tOAngRO8cODMNWbVRdVlmGZQL2YS3yR8bIUA==}
     engines: {node: '>= 0.4'}
 
   escalade@3.2.0:
@@ -1452,8 +1456,8 @@ packages:
   form-data-encoder@1.7.2:
     resolution: {integrity: sha512-qfqtYan3rxrnCk1VYaA4H+Ms9xdpPqvLZa6xmMgFvhO32x7/3J/ExcTd6qpxM0vH2GdMI+poehyBZvqfMTto8A==}
 
-  form-data@4.0.1:
-    resolution: {integrity: sha512-tzN8e4TX8+kkxGPK8D5u0FNmjPUjw3lwC9lSLxxoB/+GtsJG91CO8bSWy73APlgAZzZbXEYZJuxjkHH2w+Ezhw==}
+  form-data@4.0.3:
+    resolution: {integrity: sha512-qsITQPfmvMOSAdeyZ+12I1c+CKSstAFAwu+97zrnWAbIr5u8wfsExUzCesVLC8NgHuRUqNN4Zy6UPWUTRGslcA==}
     engines: {node: '>= 6'}
 
   formdata-node@4.4.1:
@@ -1497,13 +1501,17 @@ packages:
     peerDependencies:
       next: '>=13.2.0'
 
-  get-intrinsic@1.2.6:
-    resolution: {integrity: sha512-qxsEs+9A+u85HhllWJJFicJfPDhRmjzoYdl64aMWW9yRIJmSyxdn8IEkuIM530/7T+lv0TIHd8L6Q/ra0tEoeA==}
+  get-intrinsic@1.3.0:
+    resolution: {integrity: sha512-9fSjSaos/fRIVIp+xSJlE6lfwhES7LNtKaCBIamHsjr2na1BiABJPo0mOjjz8GJDURarmCPGqaiVg5mfjb98CQ==}
     engines: {node: '>= 0.4'}
 
   get-nonce@1.0.1:
     resolution: {integrity: sha512-FJhYRoDaiatfEkUK8HKlicmu/3SGFD51q3itKDGoSTysQJBnfOcxU5GxnhE1E6soB76MbT0MBtnKJuXyAx+96Q==}
     engines: {node: '>=6'}
+
+  get-proto@1.0.1:
+    resolution: {integrity: sha512-sTSfBjoXBp89JvIKIefqw7U2CCebsc74kiY6awiGogKtoSGbgjYE/G/+l9sF3MWFPNc9IcoOC4ODfKHfxFmp0g==}
+    engines: {node: '>= 0.4'}
 
   github-from-package@0.0.0:
     resolution: {integrity: sha512-SyHy3T1v2NUXn29OsWdxmK6RwHD+vkj3v8en8AOBZ1wBQ/hCAQ5bAQTD02kW4W9tUp/3Qh6J8r9EvntiyCmOOw==}
@@ -1529,6 +1537,10 @@ packages:
 
   has-symbols@1.1.0:
     resolution: {integrity: sha512-1cDNdwJ2Jaohmb3sg4OmKaMBwuC48sYni5HUw2DvsC8LjGTLK9h+eb1X6RyuOHe4hT0ULCW68iomhjUoKUqlPQ==}
+    engines: {node: '>= 0.4'}
+
+  has-tostringtag@1.0.2:
+    resolution: {integrity: sha512-NqADB8VjPFLM2V0VvHUewwwsw0ZWBaIdgo+ieHtK3hasLz4qeCRjYcqfB6AQrBggRKppKF8L52/VqdVsO47Dlw==}
     engines: {node: '>= 0.4'}
 
   hasown@2.0.2:
@@ -2544,7 +2556,7 @@ snapshots:
 
   '@mendable/firecrawl-js@1.10.1(ws@8.18.0)':
     dependencies:
-      axios: 1.7.9
+      axios: 1.8.2
       isows: 1.0.6(ws@8.18.0)
       typescript-event-target: 1.1.1
       zod: 3.24.1
@@ -3174,7 +3186,7 @@ snapshots:
   '@types/node-fetch@2.6.12':
     dependencies:
       '@types/node': 20.17.10
-      form-data: 4.0.1
+      form-data: 4.0.3
 
   '@types/node@18.19.69':
     dependencies:
@@ -3288,10 +3300,10 @@ snapshots:
       postcss: 8.4.49
       postcss-value-parser: 4.2.0
 
-  axios@1.7.9:
+  axios@1.8.2:
     dependencies:
       follow-redirects: 1.15.9
-      form-data: 4.0.1
+      form-data: 4.0.3
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -3365,15 +3377,15 @@ snapshots:
     dependencies:
       streamsearch: 1.1.0
 
-  call-bind-apply-helpers@1.0.1:
+  call-bind-apply-helpers@1.0.2:
     dependencies:
       es-errors: 1.3.0
       function-bind: 1.1.2
 
   call-bound@1.0.3:
     dependencies:
-      call-bind-apply-helpers: 1.0.1
-      get-intrinsic: 1.2.6
+      call-bind-apply-helpers: 1.0.2
+      get-intrinsic: 1.3.0
 
   camelcase-css@2.0.1: {}
 
@@ -3490,7 +3502,7 @@ snapshots:
 
   dunder-proto@1.0.1:
     dependencies:
-      call-bind-apply-helpers: 1.0.1
+      call-bind-apply-helpers: 1.0.2
       es-errors: 1.3.0
       gopd: 1.2.0
 
@@ -3510,9 +3522,16 @@ snapshots:
 
   es-errors@1.3.0: {}
 
-  es-object-atoms@1.0.0:
+  es-object-atoms@1.1.1:
     dependencies:
       es-errors: 1.3.0
+
+  es-set-tostringtag@2.1.0:
+    dependencies:
+      es-errors: 1.3.0
+      get-intrinsic: 1.3.0
+      has-tostringtag: 1.0.2
+      hasown: 2.0.2
 
   escalade@3.2.0: {}
 
@@ -3556,10 +3575,12 @@ snapshots:
 
   form-data-encoder@1.7.2: {}
 
-  form-data@4.0.1:
+  form-data@4.0.3:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
+      es-set-tostringtag: 2.1.0
+      hasown: 2.0.2
       mime-types: 2.1.35
 
   formdata-node@4.4.1:
@@ -3593,20 +3614,25 @@ snapshots:
     dependencies:
       next: 15.2.4(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 
-  get-intrinsic@1.2.6:
+  get-intrinsic@1.3.0:
     dependencies:
-      call-bind-apply-helpers: 1.0.1
-      dunder-proto: 1.0.1
+      call-bind-apply-helpers: 1.0.2
       es-define-property: 1.0.1
       es-errors: 1.3.0
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
       function-bind: 1.1.2
+      get-proto: 1.0.1
       gopd: 1.2.0
       has-symbols: 1.1.0
       hasown: 2.0.2
       math-intrinsics: 1.1.0
 
   get-nonce@1.0.1: {}
+
+  get-proto@1.0.1:
+    dependencies:
+      dunder-proto: 1.0.1
+      es-object-atoms: 1.1.1
 
   github-from-package@0.0.0: {}
 
@@ -3632,6 +3658,10 @@ snapshots:
   guid-typescript@1.0.9: {}
 
   has-symbols@1.1.0: {}
+
+  has-tostringtag@1.0.2:
+    dependencies:
+      has-symbols: 1.1.0
 
   hasown@2.0.2:
     dependencies:
@@ -4172,14 +4202,14 @@ snapshots:
     dependencies:
       call-bound: 1.0.3
       es-errors: 1.3.0
-      get-intrinsic: 1.2.6
+      get-intrinsic: 1.3.0
       object-inspect: 1.13.3
 
   side-channel-weakmap@1.0.2:
     dependencies:
       call-bound: 1.0.3
       es-errors: 1.3.0
-      get-intrinsic: 1.2.6
+      get-intrinsic: 1.3.0
       object-inspect: 1.13.3
       side-channel-map: 1.0.1
 
