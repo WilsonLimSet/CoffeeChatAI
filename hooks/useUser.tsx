@@ -33,18 +33,22 @@ export const MyUserContextProvider = (props: Props) => {
     const [isLoadingData, setIsLoadingData] = useState(false)
     const [userDetails, setUserDetails] = useState<Profile | null>(null)
 
-    const getUserDetails = () => supabase.from('profiles').select('*').eq('id', user?.id).single()
+    const getUserDetails = async (userId: string) => {
+        return supabase.from('profiles').select('*').eq('id', userId).single()
+    }
 
     useEffect(() => {
         if (user && !isLoadingData && !userDetails) {
             setIsLoadingData(true)
 
-            Promise.allSettled([getUserDetails()]).then(
+            Promise.allSettled([getUserDetails(user.id)]).then(
                 (results) => {
                     const userDetailsPromise = results[0];
 
-                    if (userDetailsPromise.status === "fulfilled") {
+                    if (userDetailsPromise.status === "fulfilled" && userDetailsPromise.value.data) {
                         setUserDetails(userDetailsPromise.value.data as Profile);
+                    } else if (userDetailsPromise.status === "rejected") {
+                        console.error('Error fetching user details:', userDetailsPromise.reason);
                     }
 
                     setIsLoadingData(false)
