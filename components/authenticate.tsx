@@ -1,4 +1,4 @@
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog"
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import { FcGoogle } from "react-icons/fc"
@@ -41,9 +41,6 @@ const Authenticate = () => {
 
   return (
     <AlertDialog defaultOpen>
-      <AlertDialogTrigger asChild>
-        <></>
-      </AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-[425px]">
         <AlertDialogHeader>
           <AlertDialogTitle>Authenticate with Google</AlertDialogTitle>
