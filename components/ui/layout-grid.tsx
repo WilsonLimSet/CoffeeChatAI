@@ -6,7 +6,7 @@ import Image, { ImageProps, StaticImageData } from "next/image";
 
 type Card = {
   id: number;
-  content: JSX.Element | React.ReactNode | string;
+  content: React.ReactElement | React.ReactNode | string;
   className: string;
   thumbnail: string | StaticImageData; // Allow both string and StaticImageData
 };
