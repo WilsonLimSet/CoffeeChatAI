@@ -9,13 +9,13 @@ import { ModeToggle } from '@/components/mode-toggle';
 import { Profile } from '@/types';
 import Authenticate from '@/components/authenticate';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from "next/image";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useChat } from "ai/react";
 import PayDialog from '@/components/pay-dialog';
-import Image from "next/image";
 
 interface ScrapingResponse {
     success: boolean;
@@ -179,7 +179,6 @@ const Page: React.FC = () => {
     };
 
     const getCurrentUser = async (userId: string): Promise<void> => {
-        console.log('Getting current user for ID:', userId);
         try {
             let { data: profile, error } = await supabaseClient
                 .from('profiles')
@@ -187,11 +186,8 @@ const Page: React.FC = () => {
                 .eq('id', userId)
                 .single();
 
-            console.log('Profile fetch result:', { profile, error });
-
             if (error && error.code === 'PGRST116') {
                 // Profile doesn't exist, create it via API route
-                console.log('Profile not found, creating new profile...');
                 
                 const response = await fetch('/api/create-profile', {
                     method: 'POST',
@@ -202,7 +198,7 @@ const Page: React.FC = () => {
                         userId,
                         email: user?.email || '',
                         fullName: user?.user_metadata?.full_name || user?.email?.split('@')[0] || '',
-                        avatarUrl: user?.user_metadata?.avatar_url || user?.user_metadata?.picture || ''
+                        avatarUrl: user?.user_metadata?.picture || user?.user_metadata?.avatar_url || ''
                     })
                 });
 
@@ -213,13 +209,11 @@ const Page: React.FC = () => {
                 }
                 
                 profile = result.profile;
-                console.log('Profile created successfully:', profile);
             } else if (error) {
                 throw error;
             }
 
             if (profile && isMounted.current) {
-                console.log('Setting current user:', profile);
                 setCurrentUser(profile);
             }
         } catch (error) {
@@ -228,12 +222,8 @@ const Page: React.FC = () => {
     };
 
     useEffect(() => {
-        console.log('User changed:', user);
         if (user?.id) {
-            console.log('User has ID, fetching profile...');
             getCurrentUser(user.id);
-        } else {
-            console.log('No user ID available');
         }
     }, [user]);
 
@@ -326,6 +316,7 @@ const Page: React.FC = () => {
                 }
                 
                 // Make a direct API call instead of using handleSubmit
+                console.log('Sending to chat API:', { vibe, bioLength: content.length, bioPreview: content.substring(0, 100) + '...' });
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: {
@@ -338,17 +329,23 @@ const Page: React.FC = () => {
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to generate questions');
+                    const errorData = await response.json();
+                    console.error('API Error:', errorData);
+                    throw new Error(errorData.details || 'Failed to generate questions');
                 }
 
                 // Process the streaming response
+                console.log('Response received, starting to process...');
                 const reader = response.body?.getReader();
                 if (reader) {
                     let accumulated = '';
                     try {
                         while (true) {
                             const { done, value } = await reader.read();
-                            if (done) break;
+                            if (done) {
+                                console.log('Stream complete. Total response:', accumulated);
+                                break;
+                            }
                             const text = new TextDecoder().decode(value);
                             accumulated += text;
                             
@@ -415,8 +412,6 @@ const Page: React.FC = () => {
 
     const isLoading = isScrapingLoading || isChatLoading;
 
-    console.log('Render check:', { user, session, currentUser });
-    
     return (
         <>
             {user && session && session.user && currentUser ? (
@@ -453,9 +448,17 @@ const Page: React.FC = () => {
                             </div>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Avatar className="cursor-pointer">
-                                        <AvatarImage src={currentUser?.avatar_url} />
-                                        <AvatarFallback>CC</AvatarFallback>
+                                    <Avatar className="cursor-pointer h-10 w-10">
+                                        {currentUser?.avatar_url && (
+                                            <AvatarImage 
+                                                src={currentUser.avatar_url}
+                                                alt={currentUser?.full_name || 'User avatar'}
+                                                referrerPolicy="no-referrer"
+                                            />
+                                        )}
+                                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                                            {currentUser?.full_name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'CC'}
+                                        </AvatarFallback>
                                     </Avatar>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="w-56" align="end">
@@ -585,39 +588,53 @@ const Page: React.FC = () => {
                             </div>
 
                             {questions.length > 0 && (
-                                <output className="space-y-4 mt-8 mb-6">
-                                    <div className="space-y-1">
+                                <output className="space-y-4 mt-8 mb-6 px-4 md:px-0">
+                                    <div className="space-y-2">
                                         <h2
-                                            className="text-2xl font-bold text-slate-900 dark:text-slate-100 text-center"
+                                            className="text-xl md:text-2xl font-bold text-slate-900 dark:text-slate-100 text-center"
                                             ref={bioRef}
                                         >
                                             Your generated questions
                                         </h2>
-                                        <p className="text-slate-600 dark:text-slate-400 text-center text-sm">
-                                            Click to copy all questions to your clipboard
+                                        <p className="text-slate-600 dark:text-slate-400 text-center text-xs md:text-sm px-4">
+                                            Tap to copy all questions to your clipboard
                                         </p>
                                     </div>
                                     <div 
-                                        className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg p-6 
-                                        hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-copy 
-                                        border border-gray-200 dark:border-gray-700"
+                                        className="w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl 
+                                        p-4 md:p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 
+                                        cursor-pointer active:scale-[0.98] border border-gray-200 dark:border-gray-700
+                                        touch-manipulation"
                                         onClick={() => {
                                             const formattedQuestions = questions
                                                 .map((q: string) => `• ${q}`)
                                                 .join('\n\n');
                                             navigator.clipboard.writeText(formattedQuestions);
                                             toast({
-                                                title: "Copied to clipboard",
-                                                description: "All questions have been copied to your clipboard",
+                                                title: "Copied! 📋",
+                                                description: "Questions copied to clipboard",
                                             });
                                         }}
                                     >
-                                        <div className="space-y-4">
+                                        <div className="space-y-6">
                                             {questions.map((question: string, index: number) => (
-                                                <p key={index} className="text-base text-gray-800 dark:text-gray-200 leading-relaxed">
-                                                    • {question}
-                                                </p>
+                                                <div key={index} className="flex items-start gap-3">
+                                                    <span className="text-blue-500 dark:text-blue-400 font-bold text-lg mt-0.5 shrink-0">
+                                                        {index + 1}.
+                                                    </span>
+                                                    <p className="text-sm md:text-base text-gray-800 dark:text-gray-200 leading-relaxed">
+                                                        {question}
+                                                    </p>
+                                                </div>
                                             ))}
+                                        </div>
+                                        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                            <p className="text-center text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center gap-2">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                </svg>
+                                                Tap anywhere to copy
+                                            </p>
                                         </div>
                                     </div>
                                 </output>

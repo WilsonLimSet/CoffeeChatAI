@@ -1,11 +1,10 @@
 import { streamText } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { NextResponse } from 'next/server';
 
-// Create a custom OpenAI provider instance with your API key
-const openaiProvider = createOpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  compatibility: 'strict' // Enable when using OpenAI API
+// Create a Google AI provider instance
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_AI_API_KEY || process.env.OPENAI_API_KEY, // Fallback to OpenAI key for now
 });
 
 export const runtime = 'edge';
@@ -26,8 +25,10 @@ export async function POST(req: Request) {
       console.error('KV Error:', kvError);
     }
 
+    console.log('Attempting to call Gemini with bio length:', bio.length);
+    
     const { textStream } = await streamText({
-      model: openaiProvider('gpt-4o-mini'),
+      model: google('gemini-1.5-flash'),
       messages: [
         {
           role: 'user',
@@ -79,9 +80,15 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error('Chat API error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      cause: error.cause,
+      stack: error.stack
+    });
     return NextResponse.json({ 
       error: 'Failed to generate questions', 
-      details: error.message 
+      details: error.message,
+      cause: error.cause?.message || 'Unknown'
     }, { status: 500 });
   }
 }
