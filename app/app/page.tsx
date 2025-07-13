@@ -23,7 +23,7 @@ interface ScrapingResponse {
     error?: string;
 }
 
-type InputType = 'bio' | 'url';
+type InputType = 'url' | 'linkedin';
 type VibeType = 'Professional' | 'Casual';
 
 const Page: React.FC = () => {
@@ -38,7 +38,7 @@ const Page: React.FC = () => {
     const [vibe, setVibe] = useState<VibeType>("Professional");
     const [bioInput, setBioInput] = useState<string>('');
     const [urlInput, setUrlInput] = useState<string>('');
-    const [inputType, setInputType] = useState<InputType>('bio');
+    const [inputType, setInputType] = useState<InputType>('linkedin');
     const [streamedResponse, setStreamedResponse] = useState<string>('');
     const [accumulatedText, setAccumulatedText] = useState<string>('');
     const [url, setUrl] = useState<string>('');
@@ -71,7 +71,7 @@ const Page: React.FC = () => {
     };
 
     const isFormValid = (): boolean => {
-        if (inputType === 'bio') {
+        if (inputType === 'linkedin') {
             return input.length >= 20;
         } else {
             return isValidUrl(url);
@@ -386,16 +386,90 @@ const Page: React.FC = () => {
                 scrollToBios();
                 fetchUpdatedCounter().then(setCoffeeChatsAided);
             } else {
+                // For 'linkedin' input type
                 if (input.length < 20) {
                     toast({
-                        title: "Bio too short",
+                        title: "Profile too short",
                         description: "Please enter at least 20 characters",
                         variant: "destructive"
                     });
                     setIsChatLoading(false);
                     return;
                 }
-                await handleSubmit(e);
+                
+                // Add a prefix to help the AI understand it's LinkedIn data
+                const linkedinBio = `LinkedIn Profile:\n${input}`;
+                
+                // Make a direct API call with the LinkedIn content
+                console.log('Sending LinkedIn profile to chat API:', { vibe, bioLength: linkedinBio.length });
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        vibe,
+                        bio: linkedinBio,
+                    }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('API Error:', errorData);
+                    throw new Error(errorData.details || 'Failed to generate questions');
+                }
+
+                // Process the streaming response
+                console.log('Response received, starting to process...');
+                const reader = response.body?.getReader();
+                if (reader) {
+                    let accumulated = '';
+                    try {
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) {
+                                console.log('Stream complete. Total response:', accumulated);
+                                break;
+                            }
+                            const text = new TextDecoder().decode(value);
+                            accumulated += text;
+                            
+                            if (!isMounted.current) return;
+                            
+                            const processedQuestions = accumulated
+                                .split('\n')
+                                .map(q => q.trim())
+                                .filter(q => q.length > 0);
+                            
+                            setQuestions(processedQuestions);
+                            setStreamedResponse(accumulated);
+                        }
+
+                        // Increment the generation count after successful generation
+                        if (currentUser && isMounted.current) {
+                            const { data } = await supabaseClient
+                                .from('profiles')
+                                .update({ 
+                                    images_generated: (currentUser.images_generated ?? 0) + 1 
+                                })
+                                .eq('id', currentUser.id)
+                                .select()
+                                .single();
+                                
+                            if (data) {
+                                setCurrentUser(data);
+                            }
+                        }
+                    } catch (error) {
+                        if (error instanceof Error && error.name !== 'AbortError') {
+                            throw error;
+                        }
+                    }
+                }
+                
+                setIsScrapingLoading(false);
+                scrollToBios();
+                fetchUpdatedCounter().then(setCoffeeChatsAided);
             }
         } catch (error) {
             setIsChatLoading(false);
@@ -488,32 +562,26 @@ const Page: React.FC = () => {
                                     <h3 className="text-xl font-semibold">Enter information about the person</h3>
                                 </div>
 
-                                <div className="flex gap-2 mb-2">
+                                <div className="flex gap-2 mb-2 flex-wrap">
                                     <Button 
-                                        variant={inputType === 'bio' ? 'default' : 'outline'}
-                                        onClick={() => setInputType('bio')}
+                                        variant={inputType === 'linkedin' ? 'default' : 'outline'}
+                                        onClick={() => setInputType('linkedin')}
                                         disabled={isLoading}
+                                        className="flex-1 md:flex-none"
                                     >
-                                        Paste Bio
+                                        LinkedIn / Bio
                                     </Button>
                                     <Button 
                                         variant={inputType === 'url' ? 'default' : 'outline'}
                                         onClick={() => setInputType('url')}
                                         disabled={isLoading}
+                                        className="flex-1 md:flex-none"
                                     >
-                                        Use URL
+                                        Website URL
                                     </Button>
                                 </div>
 
-                                {inputType === 'bio' ? (
-                                    <Textarea 
-                                        value={input}
-                                        onChange={handleBioChange}
-                                        placeholder="e.g. Patrick Collison (born 9 September 1988) is an Irish billionaire entrepreneur..."
-                                        className="min-h-[100px] text-base"
-                                        disabled={isLoading}
-                                    />
-                                ) : (
+                                {inputType === 'url' ? (
                                     <div className="space-y-2">
                                         <input
                                             type="url"
@@ -521,6 +589,38 @@ const Page: React.FC = () => {
                                             onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
                                             placeholder="Paste profile URL (e.g. personal website)"
                                             className="w-full p-2 border rounded"
+                                            disabled={isLoading}
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                                                </svg>
+                                                <h4 className="font-semibold text-blue-900 dark:text-blue-100">How to add profile information:</h4>
+                                            </div>
+                                            <ol className="text-sm text-blue-800 dark:text-blue-200 space-y-1.5">
+                                                <li className="flex items-center gap-2">
+                                                    <span className="font-semibold text-blue-600 dark:text-blue-400">•</span> 
+                                                    <strong>For LinkedIn:</strong> Select only the profile content (About, Experience, etc.)
+                                                </li>
+                                                <li className="flex items-center gap-2">
+                                                    <span className="font-semibold text-blue-600 dark:text-blue-400">•</span> 
+                                                    <strong>For any bio:</strong> Paste any professional bio or resume text
+                                                </li>
+                                                <li className="flex items-center gap-2">
+                                                    <span className="font-semibold text-blue-600 dark:text-blue-400">•</span> 
+                                                    Copy (<kbd className="px-1.5 py-0.5 text-xs bg-white dark:bg-gray-800 rounded border border-gray-300 dark:border-gray-600">Ctrl/Cmd + C</kbd>) and paste below
+                                                </li>
+                                            </ol>
+                                        </div>
+                                        <Textarea 
+                                            value={input}
+                                            onChange={handleBioChange}
+                                            placeholder="Paste bio or LinkedIn profile text here (e.g., 'John Doe • Software Engineer at Google • About: Passionate about...')"
+                                            className="min-h-[150px] text-base border-2 focus:border-blue-500"
                                             disabled={isLoading}
                                         />
                                     </div>
@@ -550,9 +650,9 @@ const Page: React.FC = () => {
 
                             <div 
                                 onClick={() => {
-                                    if (inputType === 'bio' && input.length < 20) {
+                                    if (inputType === 'linkedin' && input.length < 20) {
                                         toast({
-                                            title: "Bio too short",
+                                            title: "Profile too short",
                                             description: "Please enter at least 20 characters",
                                             variant: "destructive"
                                         });
