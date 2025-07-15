@@ -86,7 +86,7 @@ const Page: React.FC = () => {
         },
         onResponse(response) {
             // Check if user has reached their limit
-            if (currentUser && !currentUser.paid && (currentUser.images_generated ?? 0) >= 2) {
+            if (currentUser && !currentUser.paid && (currentUser.images_generated ?? 0) >= 5) {
                 toast({
                     title: "Generation limit reached",
                     description: "You've reached your free limit. Upgrade to continue generating questions.",
@@ -508,7 +508,7 @@ const Page: React.FC = () => {
                                 ) : (
                                     <div className='flex items-center gap-2'>
                                         <p className='text-sm'>
-                                            {2 - (currentUser.images_generated ?? 0)} generations left
+                                            {5 - (currentUser.images_generated ?? 0)} generations left
                                         </p>
                                         <Button 
                                             variant="link" 
@@ -670,11 +670,11 @@ const Page: React.FC = () => {
                                     disabled={
                                         !isFormValid() || 
                                         isLoading || 
-                                        (!currentUser?.paid && (currentUser?.images_generated ?? 0) >= 2)
+                                        (!currentUser?.paid && (currentUser?.images_generated ?? 0) >= 5)
                                     }
                                     className="w-full h-10 text-base font-medium"
                                 >
-                                    {!currentUser?.paid && (currentUser?.images_generated ?? 0) >= 2 ? (
+                                    {!currentUser?.paid && (currentUser?.images_generated ?? 0) >= 5 ? (
                                         'Upgrade to generate more questions'
                                     ) : isLoading ? (
                                         <div className="flex items-center gap-2">

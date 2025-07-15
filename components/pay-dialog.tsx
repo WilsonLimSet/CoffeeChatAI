@@ -165,7 +165,7 @@ const PayDialog: React.FC<PayDialogProps> = ({ userDetails, userEmail, isOpen, o
             title="Free"
             description="The coffee chat ai experience"
             price="$0"
-            features={["2 free generations / account"]}
+            features={["5 free generations / account"]}
           />
           <PlanCard 
             userDetails={userDetails}
