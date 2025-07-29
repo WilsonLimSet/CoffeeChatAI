@@ -60,7 +60,7 @@ const Page = () => {
                 </HoverBorderGradient>
             </Link>
 
-            <div className="w-full max-w-6xl px-4 mb-12 mt-12">
+            <div className="w-full max-w-6xl px-4 ">
                 <div className="grid md:grid-cols-2 gap-8 items-start">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
