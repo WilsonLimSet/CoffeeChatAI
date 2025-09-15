@@ -98,8 +98,8 @@ importers:
         specifier: ^4.3.17
         version: 4.3.17(react@19.1.0)(zod@4.0.5)
       axios:
-        specifier: ^1.11.0
-        version: 1.11.0
+        specifier: ^1.12.0
+        version: 1.12.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1055,8 +1055,8 @@ packages:
   '@types/node@24.0.13':
     resolution: {integrity: sha512-Qm9OYVOFHFYg3wJoTSrz80hoec5Lia/dPp84do3X7dZvLikQvM1YpmvTBEdIr/e+U8HTkFjLHLnl78K/qjf+jQ==}
 
-  '@types/node@24.1.0':
-    resolution: {integrity: sha512-ut5FthK5moxFKH2T1CUOC6ctR67rQRvvHdFLCD2Ql6KXmMuCrjsSsRI9UsLCm9M18BMwClv4pn327UvB7eeO1w==}
+  '@types/node@24.4.0':
+    resolution: {integrity: sha512-gUuVEAK4/u6F9wRLznPUU4WGUacSEBDPoC2TrBkw3GAnOLHBL45QdfHOXp1kJ4ypBGLxTOB+t7NJLpKoC3gznQ==}
 
   '@types/phoenix@1.6.6':
     resolution: {integrity: sha512-PIzZZlEppgrpoT2QgbnDU+MMzuR6BbCjllj0bM70lWoejMeNJAxCchxnv7J3XFkI8MpygtRpzXrIlmWUBclP5A==}
@@ -1192,8 +1192,8 @@ packages:
     peerDependencies:
       postcss: ^8.1.0
 
-  axios@1.11.0:
-    resolution: {integrity: sha512-1Lx3WLFQWm3ooKDYZD1eXmoGO9fxYQjrycfHFC8P0sCfQVXyROp0p9PFWBehewBOdCwHc+f/b8I0fMto5eSfwA==}
+  axios@1.12.0:
+    resolution: {integrity: sha512-oXTDccv8PcfjZmPGlWsPSwtOJCZ/b6W5jAMCNcfwJbCzDckwG0jrYJFaWH1yvivfCXjVzV/SPDEhMB3Q+DSurg==}
 
   b4a@1.6.7:
     resolution: {integrity: sha512-OnAYlL5b7LEkALw87fUVafQw5rVR9RjwGd4KUwNQ6DrrNmaVaUCgLipfVlzrPQ4tWOR9P0IXGNOx50jYCCdSJg==}
@@ -1460,8 +1460,8 @@ packages:
   flatbuffers@1.12.0:
     resolution: {integrity: sha512-c7CZADjRcl6j0PlvFy0ZqXQ67qSEZfrVPynmnL+2zPc+NtMvrF8Y0QceMo7QqnSPc7+uWjUIAbvCQ5WIKlMVdQ==}
 
-  follow-redirects@1.15.9:
-    resolution: {integrity: sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==}
+  follow-redirects@1.15.11:
+    resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -1934,8 +1934,8 @@ packages:
   prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
 
-  protobufjs@7.5.3:
-    resolution: {integrity: sha512-sildjKwVqOI2kmFDiXQ6aEB0fjYTafpEvIBs8tOR8qI4spuL9OPROLVu2qZqi/xgCfsHIwVqlaF8JBjWFHnKbw==}
+  protobufjs@7.5.4:
+    resolution: {integrity: sha512-CvexbZtbov6jW2eXAvLukXjXUW1TzFaivC46BpWc/3BpcCysb5Vffu+B3XHMm8lVEuy2Mm4XGex8hBSg1yapPg==}
     engines: {node: '>=12.0.0'}
 
   proxy-from-env@1.1.0:
@@ -2253,6 +2253,9 @@ packages:
   uncrypto@0.1.3:
     resolution: {integrity: sha512-Ql87qFHB3s/De2ClA9e0gsnS6zXG27SkTiSJwjCc9MebbfapQfuPzumMIUMi38ezPZVNFcHI9sUIepeQfw8J8Q==}
 
+  undici-types@7.11.0:
+    resolution: {integrity: sha512-kt1ZriHTi7MU+Z/r9DOdAI3ONdaR3M3csEaRc6ewa4f4dTvX4cQCbJ4NkEn0ohE4hHtq85+PhPSTY+pO/1PwgA==}
+
   undici-types@7.8.0:
     resolution: {integrity: sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw==}
 
@@ -2560,7 +2563,7 @@ snapshots:
 
   '@mendable/firecrawl-js@1.29.1':
     dependencies:
-      axios: 1.11.0
+      axios: 1.12.0
       typescript-event-target: 1.1.1
       zod: 3.25.76
       zod-to-json-schema: 3.24.6(zod@3.25.76)
@@ -3208,9 +3211,9 @@ snapshots:
     dependencies:
       undici-types: 7.8.0
 
-  '@types/node@24.1.0':
+  '@types/node@24.4.0':
     dependencies:
-      undici-types: 7.8.0
+      undici-types: 7.11.0
 
   '@types/phoenix@1.6.6': {}
 
@@ -3302,9 +3305,9 @@ snapshots:
       postcss: 8.5.6
       postcss-value-parser: 4.2.0
 
-  axios@1.11.0:
+  axios@1.12.0:
     dependencies:
-      follow-redirects: 1.15.9
+      follow-redirects: 1.15.11
       form-data: 4.0.4
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -3559,7 +3562,7 @@ snapshots:
 
   flatbuffers@1.12.0: {}
 
-  follow-redirects@1.15.9: {}
+  follow-redirects@1.15.11: {}
 
   foreground-child@3.3.1:
     dependencies:
@@ -3877,7 +3880,7 @@ snapshots:
       long: 5.3.2
       onnxruntime-common: 1.20.1
       platform: 1.3.6
-      protobufjs: 7.5.3
+      protobufjs: 7.5.4
 
   openai@5.9.0(ws@8.18.3)(zod@4.0.5):
     optionalDependencies:
@@ -3973,7 +3976,7 @@ snapshots:
       object-assign: 4.1.1
       react-is: 16.13.1
 
-  protobufjs@7.5.3:
+  protobufjs@7.5.4:
     dependencies:
       '@protobufjs/aspromise': 1.1.2
       '@protobufjs/base64': 1.1.2
@@ -3985,7 +3988,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 24.1.0
+      '@types/node': 24.4.0
       long: 5.3.2
 
   proxy-from-env@1.1.0: {}
@@ -4378,6 +4381,8 @@ snapshots:
   typescript@5.8.3: {}
 
   uncrypto@0.1.3: {}
+
+  undici-types@7.11.0: {}
 
   undici-types@7.8.0: {}
 
