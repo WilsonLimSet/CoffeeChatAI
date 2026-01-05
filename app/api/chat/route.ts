@@ -26,8 +26,8 @@ export async function POST(req: Request) {
     }
 
     console.log('Attempting to call Gemini with bio length:', bio.length);
-    
-    const { textStream } = await streamText({
+
+    const result = streamText({
       model: google('gemini-1.5-flash'),
       messages: [
         {
@@ -38,45 +38,20 @@ export async function POST(req: Request) {
             ? 'Make the questions conversational and humorous.'
             : 'Make the questions professional and thoughtful.'
           }
-          
+
           Format rules:
           - Put each question on a new line
           - Do not include numbers or bullet points
           - Keep each question under 250 characters
           - Questions must be specific to the bio
           - No additional text or explanations
-          
+
           If you can't generate questions, just respond with "Unable to generate questions, try again."`
         }
       ]
     });
 
-    // Convert the textStream to a ReadableStream of Uint8Array
-    const stream = new ReadableStream({
-      async start(controller) {
-        const encoder = new TextEncoder();
-        const reader = textStream.getReader();
-        
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            controller.enqueue(encoder.encode(value));
-          }
-          controller.close();
-        } catch (error) {
-          controller.error(error);
-        }
-      },
-    });
-
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-      },
-    });
+    return result.toTextStreamResponse();
 
   } catch (error: any) {
     console.error('Chat API error:', error);
