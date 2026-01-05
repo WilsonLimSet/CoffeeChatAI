@@ -14,7 +14,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { useChat } from "ai/react";
 import PayDialog from '@/components/pay-dialog';
 
 interface ScrapingResponse {
@@ -65,6 +64,12 @@ const Page: React.FC = () => {
         }
     };
 
+    const [input, setInput] = useState<string>('');
+
+    const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+        setInput(e.target.value);
+    };
+
     const handleBioChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
         setBioInput(e.target.value);
         handleInputChange(e);
@@ -77,96 +82,6 @@ const Page: React.FC = () => {
             return isValidUrl(url);
         }
     };
-
-    const { input, handleInputChange, handleSubmit, messages } = useChat({
-        api: '/api/chat',
-        body: {
-            vibe,
-            bio: bioInput,
-        },
-        onResponse(response) {
-            // Check if user has reached their limit
-            if (currentUser && !currentUser.paid && (currentUser.images_generated ?? 0) >= 5) {
-                toast({
-                    title: "Generation limit reached",
-                    description: "You've reached your free limit. Upgrade to continue generating questions.",
-                    variant: "destructive"
-                });
-                return;
-            }
-
-            let accumulated = '';
-            const reader = response.body?.getReader();
-            if (reader) {
-                (async () => {
-                    try {
-                        while (true) {
-                            const { done, value } = await reader.read();
-                            if (done) break;
-                            const text = new TextDecoder().decode(value);
-                            accumulated += text;
-                            
-                            if (!isMounted.current) return;
-                            
-                            const processedQuestions = accumulated
-                                .split('\n')
-                                .map(q => q.trim())
-                                .filter(q => q.length > 0);
-                            
-                            setQuestions(processedQuestions);
-                            setStreamedResponse(accumulated);
-                        }
-
-                        // Increment the generation count after successful generation
-                        if (currentUser && isMounted.current) {
-                            const { data, error } = await supabaseClient
-                                .from('profiles')
-                                .update({ 
-                                    images_generated: (currentUser.images_generated ?? 0) + 1 
-                                })
-                                .eq('id', currentUser.id)
-                                .select()
-                                .single();
-                                
-                            if (data) {
-                                setCurrentUser(data);
-                            }
-                        }
-                    } catch (error) {
-                        if (error instanceof Error && error.name !== 'AbortError') {
-                            toast({
-                                title: "Error generating questions",
-                                description: error.message,
-                                variant: "destructive"
-                            });
-                        }
-                    }
-                })();
-            }
-            
-            scrollToBios();
-            fetchUpdatedCounter().then(setCoffeeChatsAided);
-        },
-        onFinish() {
-            if (!isMounted.current) return;
-            setIsChatLoading(false);
-        },
-        onError(error: Error) {
-            if (!isMounted.current) return;
-            setIsChatLoading(false);
-            // toast({
-            //     title: "Error generating questions",
-            //     description: error.message,
-            //     variant: "destructive"
-            // });
-        }
-    });
-
-    useEffect(() => {
-        if (messages.length > 0) {
-            console.log('Latest message:', messages[messages.length - 1]);
-        }
-    }, [messages]);
 
     const fetchUpdatedCounter = async (): Promise<number> => {
         const response = await fetch("/api/counter-coffee", {
