@@ -1,10 +1,10 @@
 import { streamText } from 'ai';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createOpenAI } from '@ai-sdk/openai';
 import { NextResponse } from 'next/server';
 
-// Create a Google AI provider instance
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GOOGLE_AI_API_KEY || process.env.OPENAI_API_KEY, // Fallback to OpenAI key for now
+// Create an OpenAI provider instance
+const openai = createOpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 export const runtime = 'edge';
@@ -25,10 +25,10 @@ export async function POST(req: Request) {
       console.error('KV Error:', kvError);
     }
 
-    console.log('Attempting to call Gemini with bio length:', bio.length);
+    console.log('Attempting to call OpenAI with bio length:', bio.length);
 
     const result = streamText({
-      model: google('gemini-1.5-flash'),
+      model: openai('gpt-4o-mini'),
       messages: [
         {
           role: 'user',
