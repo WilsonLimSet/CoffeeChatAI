@@ -7,8 +7,6 @@ const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export const runtime = 'edge';
-
 export async function POST(req: Request) {
   try {
     const { vibe, bio } = await req.json();
